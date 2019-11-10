@@ -1,0 +1,11 @@
+ul.barcode {
+  list-style-type: none;
+}
+
+ul.barcode li > div {
+  text-align: center;
+  float: left;
+  margin: 30px;
+  max-width: 300px;
+  margin-bottom: 15px;
+}

@@ -1,0 +1,78 @@
+:root {
+	/* colors */
+	--white      : #ffffff;
+	--orange     : #ff691f;
+	--yellow     : #fab81e;
+	--lightgreen : #7fdbb6;
+	--green      : #19cf86;
+	--lightblue  : #91d2fa;
+	--blue       : #1b95e0;
+	--grey       : #abb8c2;
+	--red        : #e81c4f;
+	--pink       : #f58ea8;
+	--purple     : #981ceb;
+	--black      : #000000;
+
+	/* font (default) */
+	font: 1rem/1.175 "BlinkMacSystemFont", -apple-system, "Roboto", sans-serif;
+}
+
+#app {
+	/* grid */
+	display: grid;
+	/* grid:4x3 */
+	grid-template-areas:
+		". . . ."
+		". . . ."
+		". . . .";
+	/* spacing */
+	padding: 96px; grid-gap: 32px;
+	/* fullscreen */
+	width: 100vw; height: 100vh;
+}
+
+img {
+	/* size */
+	width: 10.2rem; height: 8.9rem;:
+	/* center offset */
+	vertical-align: calc(-0.12109375em);
+}
+
+.grid-item {
+	/* grid */
+	display: grid;
+	/* grid:1x2 */
+	grid-template-rows: 65% 35%;
+	/* background */
+	background: whitesmoke;
+	/* material-ui.com/#/components/paper */
+	border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.25) 0px 10px 60px;
+	/* transform */
+	transition: transform 500ms;
+}
+
+.grid-item:hover {
+	/* transition */
+	transition: transform 500ms;
+	/* transform */
+	transform: scale(1.1);
+}
+
+.grid-cell--top, .grid-cell--bottom {
+	/* flex */
+	display: flex;
+	/* flex:center */
+	justify-content: center; align-items: center;
+}
+
+.grid-cell--top    { border-radius: 4px 4px 0 0; }
+.grid-cell--bottom { font-weight: 900; font-size: 1.75rem; }
+
+.bounce { animation: bounce 1s; }
+
+@keyframes bounce {
+	  0% { transform: rotate(  0deg) scale(1.0); }
+	 33% { transform: rotate( 12deg) scale(1.2); }
+	 67% { transform: rotate(-12deg) scale(0.8); }
+	100% { transform: rotate(  0deg) scale(1.0); }
+}

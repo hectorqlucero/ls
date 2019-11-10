@@ -1,0 +1,14 @@
+{:db-protocol "mysql"
+ :db-name "//localhost:3306/inventario?characterEncoding=UTF-8"
+ :db-user "root"
+ :db-pwd "44TeamLHSS0257.#"
+ :db-class "com.mysql.cj.jdbc.Driver"
+ :email-host "smtp.fastmail.com"
+ :email-user "hectorqlucero@fastmail.com"
+ :email-pwd "h64k9rq89m7ba4ap"
+ :port 5000
+ :tz "US/Pacific"
+ :site-name "Inventario"
+ :base-url "http://0.0.0.0:5000/"
+ :uploads "./barcodes"
+ :path "/uploads/"}

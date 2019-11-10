@@ -1,0 +1,14 @@
+{:db-protocol "mysql"
+ :db-name "//localhost:3306/inventario?characterEncoding=UTF-8"
+ :db-user "xxxxx"
+ :db-pwd "xxxxx"
+ :db-class "com.mysql.cj.jdbc.Driver"
+ :email-host "xxxxx"
+ :email-user "xxxxx"
+ :email-pwd "xxxxx"
+ :port 8080
+ :tz "US/Pacific"
+ :site-name "Inventario"
+ :base-url "http://0.0.0.0:8080/"
+ :uploads "./uploads"
+ :path "/uploads/"}

@@ -1,0 +1,164 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+form {
+    padding: 1em;
+    width: 640px;
+    background-color: #EFEFEF;
+    border-radius: 5px;
+}
+
+div.ftitle {
+    padding: 5px 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #CCCCCC;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+div.fitem {
+    margin-bottom: 0.3em;
+}
+
+div.fitem label:first-of-type {
+    display: block;
+    font-weight: bold;
+    color: #222222;
+}
+
+form fieldset {
+    margin-bottom: 1em;
+    border: 3px solid #CCCCCC;
+    background-color: #FCFDFE;
+    border-radius: 4px;
+}
+
+form fieldset legend {
+    line-height: 20px;
+    color: rgb(85, 85, 102);
+    background-color: rgb(252, 253, 254);
+    border: 1px solid rgb(204, 204, 204);
+    border-image: initial;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+div#menu-accordion a {
+    height: auto !important;
+}
+
+div#menu-accordion a > span {
+    margin-top: 0 !important;
+}
+
+div#menu-accordion a > span > span {
+    line-height: inherit !important;
+}
+
+div.read-only {
+    font-size: 14px;
+    line-height: 20px;
+    color: #555566;
+    border: 1px solid #CCCCCC;
+    border-radius: 3px;
+    background-color: #FCFDFE;
+    width: 171px;
+}
+
+.inline {
+    display: inline !important;
+}
+
+.loader {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: rgb(249, 249, 249) url('../images/loader.gif') no-repeat 50% 50%;
+}
+
+.box-table-a {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif, serif;
+    font-size: 12px;
+    margin: 45px;
+    width: 50%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+.box-table-a th {
+    font-size: 12px;
+    font-weight: normal;
+    padding: 8px;
+    background: #00bbee;
+    border-top: 4px solid #00bbcc;
+    border-bottom: 1px solid #fff;
+    color: #fff;
+}
+
+.box-table-a td {
+    padding: 8px;
+    background: #e8edff;
+    border-bottom: 1px solid #fff;
+    color: #669;
+    border-top: 1px solid transparent;
+}
+
+.box-table-a tr:hover td {
+    background: #cacaca;
+    color: #669;
+}
+
+.box-table-b {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif, serif;
+    font-size: 12px;
+    margin: 45px;
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+.box-table-b th {
+    font-size: 12px;
+    font-weight: normal;
+    padding: 8px;
+    background: #00bbee;
+    border-top: 4px solid #00bbcc;
+    border-bottom: 1px solid #fff;
+    color: #fff;
+}
+
+.box-table-b td {
+    padding: 8px;
+    background: #e8edff;
+    border-bottom: 1px solid #fff;
+    color: #669;
+    border-top: 1px solid transparent;
+}
+
+.box-table-b tr:hover td {
+    background: #cacaca;
+    color: #669;
+}
+
+.no-wrap {
+    display: inline !important;
+}
+
+.float-left {
+    float: left;
+    margin-right: 10px;
+}
+
+.required {
+    color: #D22E2E;
+}
