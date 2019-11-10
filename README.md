@@ -1,10 +1,10 @@
 # ls
 
-A Leiningen template for FIXME.
+A Leiningen template for Lucero Systems web applications.
 
 ## Usage
 
-FIXME
+lein new ls your-project-name
 
 ## License
 
