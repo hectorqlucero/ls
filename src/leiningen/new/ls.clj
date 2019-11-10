@@ -27,4 +27,8 @@
              ["src/{{sanitized}}/routes.clj" (render "routes.clj" data)]
              ["src/{{sanitized}}/table_ref.clj" (render "table_ref.clj" data)]
              ["test/{{sanitized}}/core.clj" (render "core.clj" data)]
-             ["project.clj" (render "project.clj" data)])))
+             ["project.clj" (render "project.clj" data)]
+             ["README.md" (render "README.md" data)]
+             [".gitignore" (render "gitignore" data)]
+             "resources"
+             "resources/private")))
