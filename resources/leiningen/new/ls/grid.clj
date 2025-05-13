@@ -1,50 +1,136 @@
 (ns {{name}}.models.grid
-  (:require [{{name}}.models.crud :refer [db Query]]
-            [{{name}}.models.util :refer [parse-int]]))
+  (:require
+   [clojure.string :as st]))
 
-(defn convert-search-columns [fields]
-  (let [fields (map #(str "COALESCE(" % ",'')") fields)]
-    (into [] fields)))
+;; start build-gid
+(defn build-grid-head
+  [href fields & args]
+  (let [args (first args)
+        new (:new args)]
+    [:thead.table-light
+     (for [field fields]
+       [:th {:data-sortable "true"
+             :data-field (key field)} (st/upper-case (val field))])
+     [:th.text-center {:style "white-space:nowrap;width:128px;"} [:a.btn.btn-outline-success {:role "button"
+                                                                                              :class (str "btn btn-sm btn-outline-success" (when (= new false) " disabled"))
+                                                                                              :href (str href "/add")} [:i.bi.bi-plus-lg] "New Record"]]]))
 
-(defn grid-sort [order-column order-dir]
-  "Creates sorting criteria (ORDER BY) for easyui grid"
-  (if (not (nil? order-column)) (str " ORDER BY " order-column " " order-dir) nil))
+(defn build-grid-body
+  [rows href fields & args]
+  (let [args (first args)
+        edit (:edit args)
+        delete (:delete args)]
+    [:tbody
+     (for [row rows]
+       [:tr
+        (for [field fields]
+          [:td.text-truncate {:style "max-width:150px;overflow:hidden;white-space:nowrap"} ((key field) row)])
 
-(defn grid-sort-extra [order extra]
-  (if (nil? order) (str " ORDER BY " extra) order))
+        [:td.text-center {:style "white-space:nowrap;width:128px;"}
+         [:div.d-inline-flex.gap-1
+          [:a {:role "button"
+               :class (str "btn btn-sm btn-outline-warning" (when (= edit false) " disabled"))
+               :style "margin:1px;"
+               :href (str href "/edit/" (:id row))} [:i.bi.bi-pencil] "Edit"]
+          [:a {:role "button"
+               :class (str "confirm btn btn-sm btn-outline-danger" (when (= delete false) " disabled"))
+               :style "margin:1px;"
+               :href (str href "/delete/" (:id row))} [:i.bi.bi-trash] "Delete"]]]])]))
 
-(defn grid-search-extra [search extra]
-  (if-not (clojure.string/blank? extra)
-    (if (nil? search)
-      (str " WHERE " extra)
-      (str search " AND " extra))))
+(defn build-grid
+  [title rows table-id fields href & args]
+  [:div.table-responsive
+   [:h3.text-center.text-info title]
+   [:table.table.table-sm.w-100 {:id table-id
+                                 :data-locale "en-US"
+                                 :data-show-fullscreen "true"
+                                 :data-toggle "table"
+                                 :data-show-columns "true"
+                                 :data-show-toggle "true"
+                                 :data-show-print "false"
+                                 :data-search "true"
+                                 :data-pagination "true"
+                                 :data-key-events "true"}
+    (if (seq args)
+      (build-grid-head href fields (first args))
+      (build-grid-head href fields))
+    (if (seq args)
+      (build-grid-body rows href fields (first args))
+      (build-grid-body rows href fields))]])
+;; End build-grid
 
-(defn grid-search [search fields]
-  "Creates search criteria for easyui grid (LIKE search) on all columns"
-  (if (not (clojure.string/blank? search))
-    (str " WHERE LOWER(concat(" (apply str (interpose "," fields)) ")) like lower('%" search "%')") nil))
+;; start build-dashboard
+(defn build-dashboard-head
+  [title fields]
+  [:thead.table-light
+   [:tr
+    [:th.text-muted.text-center {:colspan (count fields)} (st/upper-case title)]]
+   [:tr
+    [:div.d-inline-flex.gap-1
+     (for [field fields]
+       [:th {:data-sortable "true"
+             :data-field (key field)
+             :style "white-space:nowrap;"} (st/upper-case (val field))])]]])
 
-(defn grid-add-search [search fields]
-  "Creates search criteria for easyui grid (LIKE search) on all columns"
-  (if (not (clojure.string/blank? search))
-    (str " concat(" (apply str (interpose "," fields)) ") like lower('%" search "%')") nil))
+(defn build-dashboard-body
+  [rows fields]
+  [:tbody
+   (for [row rows]
+     [:tr
+      [:div.d-inline-flex.gap-1
+       (for [field fields]
+         [:td {:style "white-space:nowrap"} ((key field) row)])]])])
 
-(defn grid-offset [limit page]
-  "Creates the limit and offset for pagination on easyui grids (LIMIT && OFFSET)"
-  (if (and (parse-int limit)
-           (parse-int page))
-    (let [offset (* (dec page) limit)]
-      (str " LIMIT " limit " OFFSET " offset))))
+(defn build-dashboard
+  [title rows table-id fields]
+  [:div.table-responsive
+   [:table.table.table-sm {:style "table-layout:auto;width:100%;"
+                           :id table-id
+                           :data-virtual-scroll "true"
+                           :data-show-export "true"
+                           :data-show-fullscreen "true"
+                           :data-locale "es-MX"
+                           :data-toggle "table"
+                           :data-show-columns "true"
+                           :data-show-toggle "true"
+                           :data-show-print "true"
+                           :data-search "true"
+                           :data-pagination "true"
+                           :data-key-events "true"}
+    (build-dashboard-head title fields)
+    (build-dashboard-body rows fields)]])
+;; End build-dashboard
 
-(defn grid-total_sql [table aliases join search order]
-  "Create a total of the grid criteria"
-  (str "SELECT " (apply str (interpose "," aliases)) " FROM " table " " join search order))
+;; Start build-modal
+(defn build-modal
+  [title _ form]
+  (list
+   [:div.modal.fade {:id "exampleModal"
+                     :data-bs-backdrop "static"
+                     :data-bs-keyboard "false"
+                     :tabindex "-1"
+                     :aria-labelledby "exampleModalLabel"
+                     :aria-hidden "true"}
+    [:div.modal-dialog
+     [:div.modal-content
+      [:div.modal-header
+       [:h1.modal-title.fs-5 {:id "exampleModalLabel"} title]
+       [:button.btn-close {:type "button"
+                           :data-bs-dismiss "modal"
+                           :aria-label "Close"}]]
 
-(defn grid-sql [table aliases join search order offset]
-  "Creates select statement for easyui grid (SELECT)"
-  (str "SELECT " (apply str (interpose "," aliases)) " FROM " table " " join search order offset))
+      [:div.modal-body
+       [:span form]]]]]))
+;; End build-modal
 
-(defn grid-rows [table aliases join search order offset]
-  "Creates the row object to return to the grids"
-  {:total (count (Query db [(grid-total_sql table aliases join search order)]))
-   :rows  (Query db [(grid-sql table aliases join search order offset)])})
+(defn modal-script
+  []
+  [:script
+   "
+   const myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {
+    keyboard: false
+   })
+
+   myModal.show();
+   "])
+;; End build-modal

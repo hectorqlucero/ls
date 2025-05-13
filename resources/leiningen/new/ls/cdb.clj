@@ -1,57 +1,41 @@
 (ns {{name}}.models.cdb
-  (:require [{{name}}.models.crud :refer :all]
-            [noir.util.crypt :as crypt]))
+  (:require
+   [noir.util.crypt :as crypt]
+   [{{name}}.models.crud :refer [db Insert-multi Query!]]))
 
-
-;; Start users table
-(def users-sql
-  "CREATE TABLE users (
-  id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  lastname varchar(45) DEFAULT NULL,
-  firstname varchar(45) DEFAULT NULL,
-  username varchar(45) DEFAULT NULL,
-  password TEXT DEFAULT NULL,
-  dob varchar(45) DEFAULT NULL,
-  cell varchar(45) DEFAULT NULL,
-  phone varchar(45) DEFAULT NULL,fax varchar(45) DEFAULT NULL,
-  email varchar(100) DEFAULT NULL,
-  level char(1) DEFAULT NULL COMMENT 'A=Administrador,U=Usuario,S=Sistema',
-  active char(1) DEFAULT NULL COMMENT 'T=Active,F=Not active'
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8")
-
-(def user-rows
-  [{:lastname  "Lucero"
-    :firstname "Hector"
-    :username  "hectorqlucero@gmail.com"
-    :password  (crypt/encrypt "elmo1200")
+(def users-rows
+  [{:lastname  "User"
+    :firstname "Regular"
+    :username  "user@example.com"
+    :password  (crypt/encrypt "user")
     :dob       "1957-02-07"
-    :email     "hectorqlucero@gmail.com"
-    :level     "S"
+    :email     "user@example.com"
+    :level     "U"
     :active    "T"}
-   {:lastname  "Pescador"
-    :firstname "Marco"
-    :username  "marcopescador@hotmail.com"
-    :dob       "1968-10-04"
-    :email     "marcopescador@hotmail.com"
-    :password  (crypt/encrypt "10201117")
-    :level     "S"
-    :active    "T"}])
-;; End users table
+   {:lastname "User"
+    :firstname "Admin"
+    :username "admin@example.com"
+    :password (crypt/encrypt "admin")
+    :dob "1957-02-07"
+    :email "admin@example.com"
+    :level "A"
+    :active "T"}
+   {:lastname "User"
+    :firstname "System"
+    :username "system@example.com"
+    :password (crypt/encrypt "system")
+    :dob "1957-02-07"
+    :email "system@example.com"
+    :level "S"
+    :active "T"}])
 
-(defn create-database []
-  "Create database tables and default admin users
-   Note: First create the database on MySQL with any client"
-  (Query! db users-sql))
 
-(defn reset-database []
-  "Removes existing tables and re-creates them"
-  (Query! db "DROP table IF EXISTS users")
-  (Query! db users-sql))
-
-(defn migrate []
-  "Migrate by the seat of my pants"
-  (Query! db "DROP table IF EXISTS users")
-  (Query! db users-sql)
-  (Query! db "LOCK TABLES users WRITE;")
-  (Insert-multi db :users user-rows)
+(defn populate-tables
+  "Populates table with default data"
+  [table rows]
+  (Query! db (str "LOCK TABLES " table " WRITE;"))
+  (Insert-multi db (keyword table) rows)
   (Query! db "UNLOCK TABLES;"))
+
+(defn database []
+  (populate-tables "users" users-rows))
