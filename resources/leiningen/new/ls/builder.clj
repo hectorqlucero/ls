@@ -242,7 +242,7 @@
         ns-root (subs (str (st/replace root #"/" ".") folder) 4)]
     (str
      "(ns " ns-root ".controller\n"
-     "(:require [sk.layout :refer [application]]\n"
+     "(:require [{{name}}.layout :refer [application]]\n"
      "[{{name}}.models.util :refer [get-session-id]]\n"
      "[" ns-root ".model :refer [get-" tabla "]]\n"
      "[" ns-root ".view :refer [" tabla "-view]]))\n\n"
