@@ -1,49 +1,22 @@
-# lsgen
-A utility that helps build a full stack web app
+# ls
 
-## Requirements
-1. Java sdk installed
-2. MySQL installed and configured with a password
-3. Leiningen installled. https://leiningen.org
-4. vscode installed with the extension calva:clojure
+A Leiningen template for Lucero Systems web applications.
 
-## How to use the utility
-1. Clone this repository in your computer
-2. Create a database in your favorite mysql client.
-3. Configure `project.clj`
-4. Rename `resources/private/config_example` to `config.clj`
-5. Configure `project.clj` Replace **Change me** with your own configuration
-6. Configure all **xxxxx** with your own configuration
-7. On your vscode status click **REPL** to  **Start your project with a REPL and connect (a.k.a. jack-in)**
-8. Open a new terminal: 
-   * `lein with-profile dev run`
-9. Open another terminal and run:
-   * `lein migrate`
-      * Will create the **users** table
-   * `lein database`
-      * Creates a user user@example.com password **user** in the table **users**
-      * Creates an admin user admin@example.com password **admin** in the table **users**
-      * Creates a system user system@example.com password **system** in the table **users**
-10. Go to `http:localhost:3000` on your favorite browser to run your web app
+## Usage
 
-## Leiningen aliases to scaffold code, populate tables or run migrations
-1. **lein migrate** will create migrations definded on resources/migrations (ragtime migrations)
-2. **lein rollback** will rollback a migration
-3. **lein database** will create users or whatever other records needed from **sk/models/cdb.clj**
-4. **lein grid table-name** will scaffold a full crud grid on an existing table-name
-5. **lein dashboard table-name** will scaffold a dashboard on an existing table-name
-6. **lein report report-name** will scaffold a report on given report-name
+lein new ls your-project-name
 
-## Menu is a bootstrap5 navbar
-1. **located in:** `src/sk/layout.clj`
+## License
 
-## File Locations
-1. **grids** `src/sk/handlers/admin/`
-2. **dashboards** `src/sk/handlers/`
-3. **reports** `src/sk/handlers/reports`
-4. **grids, dashboards and reports contain three files:**
-   * `controller.clj`
-   * `model.clj`
-   * `view.clj`
-5. **private routes** `src/sk/routes/proutes.clj`
-6. **public routes** `src/sk/routes/routes.clj`
+Copyright © 2019 FIXME
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License 2.0 which is available at
+http://www.eclipse.org/legal/epl-2.0.
+
+This Source Code may also be made available under the following Secondary
+Licenses when the conditions for such availability set forth in the Eclipse
+Public License, v. 2.0 are satisfied: GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or (at your
+option) any later version, with the GNU Classpath Exception which is available
+at https://www.gnu.org/software/classpath/license.html.
