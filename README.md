@@ -2,6 +2,9 @@
 
 A Leiningen template for Lucero Systems web applications.
 
+## Requirements
+Greater or equal to: "17.x.x"
+
 ## Usage
 
 lein new ls your-project-name
