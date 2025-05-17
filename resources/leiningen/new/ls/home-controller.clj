@@ -1,69 +1,70 @@
 (ns {{name}}.handlers.home.controller
   (:require
-   [noir.response :refer [redirect]]
-   [noir.session :as session]
-   [noir.util.crypt :as crypt]
+   [buddy.hashers :as hashers]
+   [clojure.string :as st]
    [{{name}}.handlers.home.model :refer [get-user get-users update-password]]
-   [{{name}}.handlers.home.view :refer [change-password-view main-view home-view]]
+   [{{name}}.handlers.home.view :refer [change-password-view home-view
+                                         main-view]]
    [{{name}}.layout :refer [application error-404]]
-   [{{name}}.models.util :refer [get-session-id]]))
+   [{{name}}.models.util :refer [get-session-id]]
+   [ring.util.response :refer [redirect]]))
 
 (defn main
-  [_]
+  [request]
   (let [title "Home"
-        ok (get-session-id)
+        ok (get-session-id request)
         js nil
-        content (if (> (get-session-id) 0)
+        content (if (> ok 0)
                   (home-view)
-                  [:h2.text-primary "Welcome to the Home Page"])]
-    (application title ok js content)))
+                  [:h2.text-info "Welcome to the Home Page"])]
+    (application request title ok js content)))
 
 (defn login
-  [_]
+  [request]
   (let [title "Login"
-        ok (get-session-id)
+        ok (get-session-id request)
         js nil
         content (main-view title)]
-    (application title ok js content)))
+    (application request title ok js content)))
 
 (defn login-user
-  [{params :params}]
+  [{:keys [params session] :as request}]
   (let [username (:username params)
         password (:password params)
         row (first (get-user username))
         active (:active row)]
     (if (= active "T")
-      (if (crypt/compare password (:password row))
-        (do
-          (session/put! :user_id (:id row))
-          (redirect "/"))
+      (if (hashers/check password (:password row))
+        (-> (redirect "/")
+            (assoc :session (assoc session :user_id (:id row))))
         (error-404 "Incorrect Username and or Password!" "/"))
       (error-404 "User is not active!" "/"))))
 
 (defn change-password
-  [_]
+  [request]
   (let [title "Change Password"
-        ok (get-session-id)
+        ok (get-session-id request)
         js nil
         content (change-password-view title)]
-    (application title ok js content)))
+    (application request title ok js content)))
 
 (defn process-password
-  [{params :params}]
+  [{:keys [params]}]
   (let [username (:email params)
-        password (crypt/encrypt (:password params))
-        row (first (get-user username))
-        active (:active row)]
-    (if (= active "T")
-      (if (> (update-password username password) 0)
-        (error-404 "Your password was changed successfuly!" "/home/login")
-        (error-404 "Unable to change password!" "/home/login"))
+        password (:password params)
+        row (first (get-user username))]
+    (if (and row (= (:active row) "T"))
+      (if (and password (not (st/blank? password)))
+        (if (> (update-password username (hashers/derive password)) 0)
+          (error-404 "Your password was changed successfully!" "/home/login")
+          (error-404 "Unable to change password!" "/home/login"))
+        (error-404 "Password cannot be blank!" "/home/login"))
       (error-404 "Unable to change password!" "/home/login"))))
 
 (defn logoff-user
   [_]
-  (session/clear!)
-  (error-404 "Logoff successfully" "/"))
+  (-> (redirect "/")
+      (assoc :session {})))
 
 (comment
   (:username (first (get-users))))

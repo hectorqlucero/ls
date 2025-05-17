@@ -1,7 +1,7 @@
 (ns {{name}}.dev
   (:require [ring.adapter.jetty :as jetty]
             [ring.middleware.reload :refer [wrap-reload]]
-            [{{name}}.migrations :refer [config]]
+            [{{name}}.models.crud :refer [config]]
             [{{name}}.core :as core]))
 
 (defn -main []

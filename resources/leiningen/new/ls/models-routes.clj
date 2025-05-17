@@ -7,10 +7,10 @@
   [table]
   (let [data (str
               "  (GET \"/admin/" table "\" params [] (" table "-controller/" table " params))\n"
-              "  (GET \"/admin/" table "/edit/:id\" [id] (" table "-controller/" table "-edit id))\n"
+              "  (GET \"/admin/" table "/edit/:id\" [id :as request] (" table "-controller/" table "-edit request id))\n"
               "  (POST \"/admin/" table "/save\" params [] (" table "-controller/" table "-save params))\n"
               "  (GET \"/admin/" table "/add\" params [] (" table "-controller/" table "-add params))\n"
-              "  (GET \"/admin/" table "/delete/:id\" [id] (" table "-controller/" table "-delete id))")]
+              "  (GET \"/admin/" table "/delete/:id\" [id :as request] (" table "-controller/" table "-delete request id))")]
     data))
 
 (defn build-defroutes
@@ -63,7 +63,7 @@
   [table]
   (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
                              [(build-grid-require table)]
-                             "(:require")
+                             "[compojure.core :refer [defroutes GET POST")
   (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
                              [(build-grid-defroutes table)]
                              "(defroutes proutes"))
@@ -72,7 +72,7 @@
   [table]
   (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
                              [(build-require table)]
-                             "(:require")
+                             "[compojure.core :refer [defroutes GET POST")
   (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
                              [(build-defroutes table)]
                              "(defroutes proutes"))
@@ -82,7 +82,7 @@
   [table]
   (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
                              [(build-reporte-require table)]
-                             "(:require")
+                             "[compojure.core :refer [defroutes GET POST")
   (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
                              [(build-defroutes-reporte table)]
                              "(defroutes proutes"))

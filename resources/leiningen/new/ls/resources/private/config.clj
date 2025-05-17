@@ -1,7 +1,6 @@
 ;; Replace all "xxxxx" with your configuration
 {:db-protocol  "mysql"
  :db-name      "//localhost:3306/xxxxx?characterEncoding=UTF-8&serverTimezone=America/Los_Angeles" ; Change me
- :database-url "mysql://localhost:3306/xxxxx?user=root&password=xxxxx&serverTimezone=America/Los_Angeles" ; Change me
  :db-user      "root"
  :db-pwd       "xxxxx" ; Change me
  :db-class     "com.mysql.cj.jdbc.Driver"

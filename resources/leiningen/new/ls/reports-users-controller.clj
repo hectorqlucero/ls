@@ -5,11 +5,11 @@
    [{{name}}.layout :refer [application]]
    [{{name}}.models.util :refer [get-session-id]]))
 
-(defn users [_]
+(defn users [params]
   (let [title "Users Report"
-        ok (get-session-id)
+        ok (get-session-id params)
         js nil
         rows (get-users)
         content (users-view title rows)]
-    (application title ok js content)))
+    (application params title ok js content)))
 

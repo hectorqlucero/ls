@@ -6,10 +6,10 @@
    [{{name}}.models.util :refer [get-session-id]]))
 
 (defn users
-  [_]
+  [request]
   (let [title "Dashboard"
-        ok (get-session-id)
+        ok (get-session-id request)
         js nil
         rows (get-users)
         content (users-view title rows)]
-    (application title ok js content)))
+    (application request title ok js content)))

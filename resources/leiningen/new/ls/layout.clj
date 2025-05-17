@@ -2,32 +2,33 @@
   (:require
    [clj-time.core :as t]
    [hiccup.page :refer [html5 include-css include-js]]
-   [{{name}}.migrations :refer [config]]
+   [{{name}}.models.crud :refer [config]]
    [{{name}}.models.util :refer [user-level user-name]]))
 
-(defn build-reports []
-  (list
-   nil
-   (when (or
-          (= (user-level) "A")
-          (= (user-level) "S"))
-     (list
-      [:li [:a.dropdown-item {:href "/reports/users"} "Users"]]
-      (when (= (user-level) "S")
-        nil)))))
+(defn build-reports [request]
+  (when (or (= (user-level request) "A") (= (user-level request) "S"))
+    (list
+     nil
+     (when (or
+            (= (user-level request) "A")
+            (= (user-level request) "S"))
+       (list
+        [:li [:a.dropdown-item {:href "/reports/users"} "Users"]]
+        (when (= (user-level request) "S")
+          nil))))))
 
-(defn build-admin []
+(defn build-admin [request]
   (list
    nil
    (when (or
-          (= (user-level) "A")
-          (= (user-level) "S"))
+          (= (user-level request) "A")
+          (= (user-level request) "S"))
      (list
       nil
-      (when (= (user-level) "S")
+      (when (= (user-level request) "S")
         [:li [:a.dropdown-item {:href "/admin/users"} "Users"]])))))
 
-(defn menus-private []
+(defn menus-private [request]
   (list
    [:nav.navbar.navbar-expand-lg.navbar-light.bg-light.fixed-top
     [:div.container-fluid
@@ -49,9 +50,9 @@
        [:li.nav-item [:a.nav-link {:href "/users"} "Dashboard"]]
        (when
         (or
-         (= (user-level) "U")
-         (= (user-level) "A")
-         (= (user-level) "S"))
+         (= (user-level request) "U")
+         (= (user-level request) "A")
+         (= (user-level request) "S"))
          [:li.nav-item.dropdown
           [:a.nav-link.dropdown-toggle {:href "#"
                                         :id "navdrop0"
@@ -59,12 +60,12 @@
                                         :data-bs-toggle "dropdown"
                                         :aria-expanded "false"} "Reports"]
           [:ul.dropdown-menu {:aria-labelledby "navdrop0"}
-           (build-reports)]])
+           (build-reports request)]])
        (when
         (or
-         (= (user-level) "U")
-         (= (user-level) "A")
-         (= (user-level) "S"))
+         (= (user-level request) "U")
+         (= (user-level request) "A")
+         (= (user-level request) "S"))
          [:li.nav-item.dropdown
           [:a.nav-link.dropdown-toggle {:href "#"
                                         :id "navdrop0"
@@ -72,8 +73,8 @@
                                         :data-bs-toggle "dropdown"
                                         :aria-expanded "false"} "Administration"]
           [:ul.dropdown-menu {:aria-labelledby "navdrop0"}
-           (build-admin)]])
-       [:li.nav-item [:a.nav-link {:href "/home/logoff"} (str "Logout [" (user-name) "]")]]]]]]))
+           (build-admin request)]])
+       [:li.nav-item [:a.nav-link {:href "/home/logoff"} (str "Logout [" (user-name request) "]")]]]]]]))
 
 (defn menus-public []
   (list
@@ -133,7 +134,7 @@
    (include-js "/bootstrap-table-master/dist/locale/bootstrap-table-en-US.min.js")
    (include-js "/js/extra.js")))
 
-(defn application [title ok js & content]
+(defn application [request title ok js & content]
   (html5 {:ng-app (:site-name config) :lang "en"}
          [:head
           [:title (if title
@@ -151,7 +152,7 @@
            (cond
              (= ok -1) (menus-none)
              (= ok 0) (menus-public)
-             (> ok 0) (menus-private))
+             (> ok 0) (menus-private request))
            [:div {:style "padding-left:14px;"} content]]
           (app-js)
           js
@@ -173,9 +174,9 @@
           [:div.container.flex-nowrap.overflow-auto.margin-top {:style "margin-top:75px;margin-bottom:25px;"}
            (menus-none)
            [:div {:style "padding-left:14px;"}
-            [:div
+            [:div.text-center
              [:p [:h3 [:b "Message: "]] [:h3 content]]
-             [:p [:h3 [:a {:href return-url} "Clic here to " [:strong "Continue"]]]]]]]
+             [:p [:h3 [:a.text-info {:href return-url} "Clic here to " [:strong "Continue"]]]]]]]
 
           (app-js)
           nil

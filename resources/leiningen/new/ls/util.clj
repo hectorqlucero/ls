@@ -1,31 +1,31 @@
 (ns {{name}}.models.util
   (:require
-   [noir.session :as session]
-   [{{name}}.migrations :refer [config]]
-   [{{name}}.models.crud :refer [db Query]]
+   [{{name}}.models.crud :refer [config db Query]]
    [clojure.core :refer [random-uuid]]))
 
-(defn get-session-id []
+(defn get-session-id [request]
   (try
-    (if (session/get :user_id) (session/get :user_id) 0)
+    (if-let [uid (get-in request [:session :user_id])]
+      uid
+      0)
     (catch Exception e (.getMessage e))))
 
-(defn user-level []
-  (let [id   (get-session-id)
+(defn user-level [request]
+  (let [id   (get-session-id request)
         type (if (nil? id)
                nil
                (:level (first (Query db ["select level from users where id = ?" id]))))]
     type))
 
-(defn user-email []
-  (let [id    (get-session-id)
+(defn user-email [request]
+  (let [id    (get-session-id request)
         email (if (nil? id)
                 nil
                 (:username (first (Query db ["select username from users where id = ?" id]))))]
     email))
 
-(defn user-name []
-  (let [id (get-session-id)
+(defn user-name [request]
+  (let [id (get-session-id request)
         username (if (nil? id)
                    nil
                    (:name (first (Query db ["select CONCAT(firstname,' ',lastname) as name from users where id = ?" id]))))]
@@ -69,6 +69,10 @@
     (Query db sql)))
 
 (comment
+  ;; Usage now requires passing the request map:
+  ;; (user-level request)
+  ;; (user-email request)
+  ;; (user-name request)
   (month-options "billing" "bill_date")
   (year-options "billing" "bill_date")
   (seconds->string 90061))

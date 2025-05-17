@@ -1,7 +1,7 @@
 (ns {{name}}.models.form
   (:require
    [ring.util.anti-forgery :refer [anti-forgery-field]]
-   [{{name}}.migrations :refer [config]]))
+   [{{name}}.models.crud :refer [config]]))
 
 (defn password-form
   [title]

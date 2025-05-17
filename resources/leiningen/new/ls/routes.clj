@@ -1,6 +1,7 @@
 (ns {{name}}.routes.routes
   (:require
    [compojure.core :refer [defroutes GET POST]]
+   [{{name}}.handlers.admin.users.controller :refer [users-delete users-edit]]
    [{{name}}.handlers.home.controller :as home-controller]))
 
 (defroutes open-routes
@@ -9,4 +10,6 @@
   (POST "/home/login" params [] (home-controller/login-user params))
   (GET "/home/logoff" params [] (home-controller/logoff-user params))
   (GET "/change/password" params [] (home-controller/change-password params))
-  (POST "/change/password" params [] (home-controller/process-password params)))
+  (POST "/change/password" params [] (home-controller/process-password params))
+  (GET "/admin/users/edit/:id" [id :as request] (users-edit request id))
+  (GET "/admin/users/delete/:id" [id :as request] (users-delete request id)))

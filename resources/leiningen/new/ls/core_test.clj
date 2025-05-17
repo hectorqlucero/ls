@@ -1,4 +1,4 @@
-(ns {{name}}.core-test
+(ns contactos.core-test
   (:require [clojure.test :refer :all]
             [compojure.route :as route]))
 

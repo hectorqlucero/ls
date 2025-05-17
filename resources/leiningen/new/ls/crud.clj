@@ -2,10 +2,18 @@
   (:require
    [clojure.java.io :as io]
    [clojure.java.jdbc :as j]
-   [clojure.string :as st]
-   [{{name}}.migrations :refer [config]])
+   [clojure.string :as st])
   (:import
    java.text.SimpleDateFormat))
+
+(defn get-config
+  []
+  (try
+    (binding [*read-eval* false]
+      (read-string (str (slurp (io/resource "private/config.clj")))))
+    (catch Exception e (.getMessage e))))
+
+(def config (get-config))
 
 (def db {:classname                       (:db-class config)
          :subprotocol                     (:db-protocol config)
@@ -115,7 +123,7 @@
       (st/includes? field-type "varchar") value
       (st/includes? field-type "char") (st/upper-case value)
       (st/includes? field-type "int") (if (clojure.string/blank? value) 0 value)
-        ;;(st/includes? field-type "date") (crud-format-date-internal value)
+      ;;(st/includes? field-type "date") (crud-format-date-internal value)
       :else value)))
 
 (defn build-postvars
@@ -133,7 +141,7 @@
   (let [field (:field d)
         field-type (:type d)]
     (cond
-        ;;(= field-type "date") (str "DATE_FORMAT(" field "," "'%m/%d/%Y') as " field)
+      ;;(= field-type "date") (str "DATE_FORMAT(" field "," "'%m/%d/%Y') as " field)
       (= field-type "time") (str "TIME_FORMAT(" field "," "'%H:%i') as " field)
       :else field)))
 

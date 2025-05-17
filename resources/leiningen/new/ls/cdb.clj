@@ -1,13 +1,13 @@
 (ns {{name}}.models.cdb
   (:require
-   [noir.util.crypt :as crypt]
+   [buddy.hashers :as hashers]
    [{{name}}.models.crud :refer [db Insert-multi Query!]]))
 
 (def users-rows
   [{:lastname  "User"
     :firstname "Regular"
     :username  "user@example.com"
-    :password  (crypt/encrypt "user")
+    :password  (hashers/derive "user")
     :dob       "1957-02-07"
     :email     "user@example.com"
     :level     "U"
@@ -15,7 +15,7 @@
    {:lastname "User"
     :firstname "Admin"
     :username "admin@example.com"
-    :password (crypt/encrypt "admin")
+    :password (hashers/derive "admin")
     :dob "1957-02-07"
     :email "admin@example.com"
     :level "A"
@@ -23,7 +23,7 @@
    {:lastname "User"
     :firstname "System"
     :username "system@example.com"
-    :password (crypt/encrypt "system")
+    :password (hashers/derive "system")
     :dob "1957-02-07"
     :email "system@example.com"
     :level "S"

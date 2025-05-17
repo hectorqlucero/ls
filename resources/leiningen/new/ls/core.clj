@@ -2,23 +2,20 @@
   (:require
    [compojure.core :refer [defroutes routes]]
    [compojure.route :as route]
-   [noir.response :refer [redirect]]
-   [noir.session :as session]
+   [{{name}}.models.crud :refer [config KEY]]
+   [{{name}}.routes.proutes :refer [proutes]]
+   [{{name}}.routes.routes :refer [open-routes]]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
    [ring.middleware.multipart-params :refer [wrap-multipart-params]]
-   [ring.middleware.session :refer [wrap-session]]
    [ring.middleware.session.cookie :refer [cookie-store]]
-   [{{name}}.migrations :refer [config]]
-   [{{name}}.models.crud :refer [KEY]]
-   [{{name}}.routes.proutes :refer [proutes]]
-   [{{name}}.routes.routes :refer [open-routes]])
+   [ring.util.response :refer [redirect]])
   (:gen-class))
 
 ;; Middleware for handling login
 (defn wrap-login [handler]
   (fn [request]
-    (if (nil? (session/get :user_id))
+    (if (nil? (get-in request [:session :user_id]))
       (redirect "home/login")
       (try
         (handler request)
@@ -51,8 +48,6 @@
   (-> (routes #'app-routes)
       (wrap-exception-handling)
       (wrap-multipart-params)
-      (wrap-session)
-      (session/wrap-noir-session*)
       (wrap-defaults (-> site-defaults
                          (assoc-in [:security :anti-forgery] true)
                          (assoc-in [:session :store] (cookie-store {:key KEY}))
