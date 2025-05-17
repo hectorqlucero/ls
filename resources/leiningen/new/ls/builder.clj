@@ -65,7 +65,7 @@
      "(let [table \"" tabla "\"\n"
      "result (build-form-save params table)]\n"
      "(if (= result true)\n"
-     "(error-404 \"Processed successfuly!\" \"" link "\")\n"
+     "(error-404 \"Processed successfully!\" \"" link "\")\n"
      "(error-404 \"Unable to process record!\" \"" link "\"))))\n\n"
      "(defn " folder "-add\n"
      "[request]\n"
@@ -81,7 +81,7 @@
      "(let [table \"" tabla "\"\n"
      "result (build-form-delete table id)]\n"
      "(if (= result true)\n"
-     "(error-404 \"Processed successfuly!\" \"" link "\")\n"
+     "(error-404 \"Processed successfully!\" \"" link "\")\n"
      "(error-404 \"Unable to process record!\" \"" link "\"))))\n\n")))
 
 (defn build-grid-model

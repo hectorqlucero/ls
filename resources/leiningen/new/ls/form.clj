@@ -55,7 +55,7 @@
                             :oninvalid "this.setCustomValidity('Password is required...')"
                             :oninput "this.setCustomValidity('')"
                             :placeholder "Password here..."
-                            :type "Password"}]]
+                            :type "password"}]]
      [:input.btn.btn-outline-success {:type "submit"
                                       :value "Login"
                                       :style "margin-right:2px;"}]

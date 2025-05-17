@@ -68,11 +68,11 @@
          (= (user-level request) "S"))
          [:li.nav-item.dropdown
           [:a.nav-link.dropdown-toggle {:href "#"
-                                        :id "navdrop0"
+                                        :id "navdrop1"
                                         :role "button"
                                         :data-bs-toggle "dropdown"
                                         :aria-expanded "false"} "Administration"]
-          [:ul.dropdown-menu {:aria-labelledby "navdrop0"}
+          [:ul.dropdown-menu {:aria-labelledby "navdrop1"}
            (build-admin request)]])
        [:li.nav-item [:a.nav-link {:href "/home/logoff"} (str "Logout [" (user-name request) "]")]]]]]]))
 
@@ -167,7 +167,7 @@
           [:meta {:name "viewport"
                   :content "width=device-width, initial-scale=1"}]
           (app-css)
-          [:link {:rel "shortcut iconcompojure"
+          [:link {:rel "shortcut icon"
                   :type "image/x-icon"
                   :href "data:image/x-icon;,"}]]
          [:body
@@ -176,7 +176,7 @@
            [:div {:style "padding-left:14px;"}
             [:div.text-center
              [:p [:h3 [:b "Message: "]] [:h3 content]]
-             [:p [:h3 [:a.text-info {:href return-url} "Clic here to " [:strong "Continue"]]]]]]]
+             [:p [:h3 [:a.text-info {:href return-url} "Click here to " [:strong "Continue"]]]]]]]
 
           (app-js)
           nil
