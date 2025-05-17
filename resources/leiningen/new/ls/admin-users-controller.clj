@@ -1,11 +1,11 @@
-(ns contactos.handlers.admin.users.controller
+(ns {{name}}.handlers.admin.users.controller
   (:require
-   [contactos.handlers.admin.users.model :refer [get-user get-users]]
-   [contactos.handlers.admin.users.view :refer [users-add-view users-edit-view
+   [{{name}}.handlers.admin.users.model :refer [get-user get-users]]
+   [{{name}}.handlers.admin.users.view :refer [users-add-view users-edit-view
                                                 users-modal-script users-view]]
-   [contactos.layout :refer [application error-404]]
-   [contactos.models.crud :refer [build-form-delete build-form-save]]
-   [contactos.models.util :refer [get-session-id]]))
+   [{{name}}.layout :refer [application error-404]]
+   [{{name}}.models.crud :refer [build-form-delete build-form-save]]
+   [{{name}}.models.util :refer [get-session-id]]))
 
 (defn users
   [request]
