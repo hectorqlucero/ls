@@ -3,7 +3,7 @@ $(document).ready(function(){
   $('.confirm').each(function(){
     var href = $(this).attr('href');
     $(this).click(function(){
-      if(confirm("Esta usted seguro?")){
+      if(confirm("Are you sure?")){
         window.location.href = href;
       } else {
         return false;
