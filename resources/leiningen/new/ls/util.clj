@@ -56,7 +56,7 @@
   [image-name]
   (let [path (str (:path config) image-name "?" (random-uuid))
         style "margin-right:wpx;cursor:pointer;"
-        img-link (str "<img src='" path "' alt='" image-name "' width=32 height=32 style='" style "'>")]
+        img-link (str "<img src='" path "' alt='" image-name "' width=42 height=32 style='" style "'>")]
     img-link))
 
 (defn year-options
