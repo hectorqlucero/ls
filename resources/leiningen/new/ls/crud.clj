@@ -259,17 +259,22 @@
 (defn crud-upload-image
   "Uploads image and renames it to the id passed"
   [table file id path]
-  (if (and file (:tempfile file) (:size file) (:content-type file))
-    (let [tempfile   (:tempfile file)
-          size       (:size file)
-          type       (:content-type file)
-          extension  (last (clojure.string/split type #"/"))
-          extension  (if (= extension "jpeg") "jpg" extension)
-          image-name (str table "_" id "." extension)]
-      (when (and tempfile (not (zero? size)))
-        (io/copy tempfile (io/file (str path image-name))))
-      image-name)
-    nil))
+  (let [valid-exts #{"jpg" "jpeg" "png" "gif" "bmp" "webp"}
+        tempfile   (:tempfile file)
+        size       (:size file)
+        orig-name  (:filename file)
+        ext-from-name (when orig-name
+                        (-> orig-name
+                            (clojure.string/split #"\.")
+                            last
+                            clojure.string/lower-case))
+        ext (if (and ext-from-name (valid-exts ext-from-name))
+              (if (= ext-from-name "jpeg") "jpg" ext-from-name)
+              "jpg") ; default to jpg if unknown or missing
+        image-name (str table "_" id "." ext)]
+    (when (and tempfile (not (zero? size)))
+      (io/copy tempfile (io/file (str path image-name))))
+    image-name))
 
 (defn get-id
   [id postvars table]
