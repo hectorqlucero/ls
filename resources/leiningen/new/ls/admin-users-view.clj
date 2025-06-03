@@ -90,16 +90,27 @@
   [title row]
   (build-modal title row (build-users-form title row)))
 
+(defonce users-grid-cache (atom {}))
+
+(defn cached-users-view
+  [title rows]
+  (let [cache-key [title (hash rows)]]
+    (if-let [cached (@users-grid-cache cache-key)]
+      cached
+      (let [grid-html (users-view title rows)]
+        (swap! users-grid-cache assoc cache-key grid-html)
+        grid-html))))
+
 (defn users-edit-view
   [title row rows]
   (list
-   (users-view "Users" rows)
+   (cached-users-view "Users" rows)
    (build-users-modal title row)))
 
 (defn users-add-view
   [title row rows]
   (list
-   (users-view "Users" rows)
+   (cached-users-view "Users" rows)
    (build-users-modal title row)))
 
 (defn users-modal-script
