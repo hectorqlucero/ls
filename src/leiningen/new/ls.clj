@@ -90,6 +90,7 @@
       ["src/{{sanitized}}/models/form.clj" (render "form.clj" data)]
       ["src/{{sanitized}}/models/grid.clj" (render "grid.clj" data)]
       ["src/{{sanitized}}/models/routes.clj" (render "models-routes.clj" data)]
+      ["src/{{sanitized}}/models/email.clj" (render "email.clj" data)]
       ["src/{{sanitized}}/models/util.clj" (render "util.clj" data)]
 
       ;; Routes
