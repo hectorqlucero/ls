@@ -130,7 +130,9 @@
                                                              border-radius: 12px !important;
                                                              padding: 0.5rem;
                                                              min-width: 200px;
-                                                             backdrop-filter: blur(10px);"}
+                                                             backdrop-filter: blur(10px);
+                                                             max-height: calc(100vh - 120px);
+                                                             overflow-y: auto;"}
       (build-menu request items)]]))
 
 ;; HELPER FUNCTIONS
@@ -276,7 +278,17 @@
    (include-css "/bootstrap5/css/bootstrap.min.css")
    (include-css "/bootstrap-icons/font/bootstrap-icons.css")
    (include-css "/bootstrap-table-master/dist/bootstrap-table.min.css")
-   (include-css "/css/extra.css")))
+   (include-css "/css/extra.css")
+   [:style
+    "@media (max-width: 576px) {
+      .dropdown-menu {
+        min-width: 96vw !important;
+        left: 2vw !important;
+        right: 2vw !important;
+        max-height: calc(100vh - 80px) !important;
+        padding: 0.25rem !important;
+      }
+    }"]))
 
 (defn app-js []
   (list
