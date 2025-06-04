@@ -4,7 +4,8 @@
    [clojure.string :as str]
    [hiccup.page :refer [html5 include-css include-js]]
    [{{name}}.models.crud :refer [config]]
-   [{{name}}.models.util :refer [user-level user-name]]))
+   [{{name}}.models.util :refer [user-level user-name]]
+   [{{name}}.menu :refer [menu-config]]))
 
 (defn generate-data-id [href]
   (-> href
@@ -131,29 +132,6 @@
                                                              min-width: 200px;
                                                              backdrop-filter: blur(10px);"}
       (build-menu request items)]]))
-
-;; MENU CONFIGURATION - Single place to define all menu items
-;; You can define report-items and admin-items as an example to make menu maintenance easier
-
-(def reports-items
-  [["/reports/users" "Users"]])
-
-(def admin-items
-  [["/admin/users" "Users" "S"]]) ;note adding a role "S" is to only allow system users to access"
-
-(def menu-config
-  {:nav-links [["/" "Home"]
-               ["/users" "Dashboard"]]
-
-   :dropdowns {:reports {:id "navdrop0"
-                         :data-id "reports"
-                         :label "Reports"
-                         :items reports-items}
-
-               :admin {:id "navdrop1"
-                       :data-id "admin"
-                       :label "Administration"
-                       :items admin-items}}})
 
 ;; HELPER FUNCTIONS
 (defn menu-item->map [[href label & [role]]]

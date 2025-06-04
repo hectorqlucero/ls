@@ -99,6 +99,7 @@
 
       ;; Core App
       ["src/{{sanitized}}/core.clj" (render "core.clj" data)]
+      ["src/{{sanitized}}/menu.clj" (render "menu.clj" data)]
       ["src/{{sanitized}}/layout.clj" (render "layout.clj" data)]
       ["src/{{sanitized}}/migrations.clj" (render "migrations.clj" data)]
 
