@@ -1,5 +1,5 @@
 (ns {{name}}.core-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is testing]]
             [compojure.route :as route]))
 
 (deftest test-route-resources

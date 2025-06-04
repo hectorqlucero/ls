@@ -28,7 +28,7 @@
     (application request title ok js content)))
 
 (defn login-user
-  [{:keys [params session] :as request}]
+  [{:keys [params session]}]
   (let [username (:username params)
         password (:password params)
         row (first (get-user username))

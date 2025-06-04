@@ -37,7 +37,7 @@
     (application request title ok js content)))
 
 (defn users-save
-  [{:keys [params] :as request}]
+  [{:keys [params]}]
   (let [table "users"
         result (build-form-save params table)]
     (if result

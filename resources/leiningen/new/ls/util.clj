@@ -95,7 +95,7 @@
   "Returns the string if it is not empty, otherwise nil."
   [s]
   (let [s (str s)]
-    (when (not (clojure.string/blank? s)) s)))
+    (when (not (st/blank? s)) s)))
 
 (defn parse-int
   "Parses a string to integer, returns nil if not possible."
@@ -117,7 +117,7 @@
   (cond
     (true? v) true
     (false? v) false
-    (string? v) (#{"true" "1" "yes" "on"} (clojure.string/lower-case v))
+    (string? v) (#{"true" "1" "yes" "on"} (st/lower-case v))
     :else false))
 
 (defn uuid
@@ -129,9 +129,9 @@
   "Converts a string to a URL-friendly slug."
   [s]
   (-> s
-      clojure.string/lower-case
-      (clojure.string/replace #"[^a-z0-9]+" "-")
-      (clojure.string/replace #"(^-|-$)" "")))
+      st/lower-case
+      (st/replace #"[^a-z0-9]+" "-")
+      (st/replace #"(^-|-$)" "")))
 
 (defn update-in-if
   "Updates a value at a path only if it exists."
@@ -201,14 +201,14 @@
 (defn blank->nil
   "Returns nil if the string is blank, otherwise returns the string."
   [s]
-  (when-not (clojure.string/blank? s) s))
+  (when-not (st/blank? s) s))
 
 (defn nil-or-empty?
   "Returns true if the value is nil or an empty collection/string."
   [v]
   (or (nil? v)
       (and (coll? v) (empty? v))
-      (and (string? v) (clojure.string/blank? v))))
+      (and (string? v) (st/blank? v))))
 
 (defn map-values
   "Applies function f to all values in map m."
