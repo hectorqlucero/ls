@@ -2,7 +2,6 @@
   (:require
    [{{name}}.models.crud :refer [config db Query]]
    [clojure.core :refer [random-uuid]]))
-
 (defn get-session-id [request]
   (try
     (if-let [uid (get-in request [:session :user_id])]
@@ -35,22 +34,18 @@
   (let [n seconds
         day (int (/ n (* 24 3600)))
         day-desc (if (= day 1) " day " " days ")
-
         n (mod n (* 24 3600))
         hour (int (/ n 3600))
         hour-desc (if (= hour 1) " hour " " hours ")
-
         n (mod n 3600)
         minutes (int (/ n 60))
         minutes-desc (if (= minutes 1) " minute " " minutes ")
-
         n (mod n 60)
         seconds (int n)
         seconds-desc (if (= seconds 1) " second " " seconds ")
-
         minutes-desc (str day day-desc hour hour-desc minutes minutes-desc)
         seconds-desc (str day day-desc hour hour-desc minutes minutes-desc seconds seconds-desc)]
-    minutes-desc))
+    seconds-desc))
 
 (defn image-link
   [image-name]
@@ -69,11 +64,291 @@
   (let [sql (str "SELECT DISTINCT MONTH(" date-field ") AS month, MONTHNAME(" date-field ") AS month_name FROM " table)]
     (Query db sql)))
 
+(defn foreign-key
+  "Fetches a field value from a foreign table by id.
+   Example: (foreign-key 1 \"users\" \"name\")"
+  [fkey-id fkey-table fkey-field]
+  (let [sql (str "SELECT " fkey-field " FROM " fkey-table " WHERE id = ?")
+        result (first (Query db [sql fkey-id]))]
+    (get result (keyword fkey-field))))
+
+(defn get-options
+  "Returns a sequence of maps {:value <value-field> :label <label-fields-concatenated>} from the given table.
+   Optionally sorts by the given field(s).
+   Example: (get-options \"users\" \"id\" [\"firstname\" \"lastname\"])
+            (get-options \"users\" \"id\" \"firstname\")
+            (get-options \"users\" \"id\" [\"firstname\" \"lastname\"] :sort-by \"lastname\")
+            (get-options \"users\" \"id\" [\"firstname\" \"lastname\"] :sort-by [\"lastname\" \"firstname\"])"
+  [table value-field label-fields & {:keys [sort-by]}]
+  (let [label-fields (if (sequential? label-fields) label-fields [label-fields])
+        label-sql (st/join ",' ', " label-fields)
+        sort-fields (cond
+                      (nil? sort-by) nil
+                      (sequential? sort-by) (st/join ", " sort-by)
+                      :else sort-by)
+        sql (str "SELECT " value-field " AS value, CONCAT(" label-sql ") AS label FROM " table
+                 (when sort-fields (str " ORDER BY " sort-fields)))
+        results (Query db sql)]
+    (map #(select-keys % [:value :label]) results)))
+
+(defn not-empty-str
+  "Returns the string if it is not empty, otherwise nil."
+  [s]
+  (let [s (str s)]
+    (when (not (clojure.string/blank? s)) s)))
+
+(defn parse-int
+  "Parses a string to integer, returns nil if not possible."
+  [s]
+  (try
+    (Integer/parseInt (str s))
+    (catch Exception _ nil)))
+
+(defn parse-float
+  "Parses a string to float, returns nil if not possible."
+  [s]
+  (try
+    (Float/parseFloat (str s))
+    (catch Exception _ nil)))
+
+(defn parse-bool
+  "Parses a string or boolean to a boolean value."
+  [v]
+  (cond
+    (true? v) true
+    (false? v) false
+    (string? v) (#{"true" "1" "yes" "on"} (clojure.string/lower-case v))
+    :else false))
+
+(defn uuid
+  "Generates a random UUID string."
+  []
+  (str (java.util.UUID/randomUUID)))
+
+(defn slugify
+  "Converts a string to a URL-friendly slug."
+  [s]
+  (-> s
+      clojure.string/lower-case
+      (clojure.string/replace #"[^a-z0-9]+" "-")
+      (clojure.string/replace #"(^-|-$)" "")))
+
+(defn update-in-if
+  "Updates a value at a path only if it exists."
+  [m ks f & args]
+  (if (get-in m ks)
+    (apply update-in m ks f args)
+    m))
+
+(defn dissoc-in
+  "Dissociates a key at a nested path."
+  [m [k & ks]]
+  (if ks
+    (let [sub (dissoc-in (get m k) ks)]
+      (if (empty? sub)
+        (dissoc m k)
+        (assoc m k sub)))
+    (dissoc m k)))
+
+(defn deep-merge
+  "Recursively merges maps."
+  [& ms]
+  (apply merge-with
+         (fn [a b]
+           (if (and (map? a) (map? b))
+             (deep-merge a b)
+             b))
+         ms))
+
+(defn ensure-vector
+  "Ensures the value is a vector."
+  [v]
+  (cond
+    (nil? v) []
+    (vector? v) v
+    (sequential? v) (vec v)
+    :else [v]))
+
+(defn safe-get
+  "Safely gets a value from a nested map, returns nil if any key is missing."
+  [m ks]
+  (try
+    (get-in m ks)
+    (catch Exception _ nil)))
+
+(defn error-response
+  "Returns a Ring error response with JSON body."
+  [msg & [status]]
+  {:status (or status 400)
+   :headers {"Content-Type" "application/json"}
+   :body (json/write-str {:error msg})})
+
+(defn now-sql
+  "Returns the current timestamp as a SQL string."
+  []
+  (.format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss") (java.util.Date.)))
+
+(defn keywordize-keys
+  "Recursively transforms all map keys from strings to keywords."
+  [m]
+  (walk/keywordize-keys m))
+
+(defn str->keyword
+  "Converts a string or symbol to a keyword."
+  [s]
+  (when s (keyword (str s))))
+
+(defn blank->nil
+  "Returns nil if the string is blank, otherwise returns the string."
+  [s]
+  (when-not (clojure.string/blank? s) s))
+
+(defn nil-or-empty?
+  "Returns true if the value is nil or an empty collection/string."
+  [v]
+  (or (nil? v)
+      (and (coll? v) (empty? v))
+      (and (string? v) (clojure.string/blank? v))))
+
+(defn map-values
+  "Applies function f to all values in map m."
+  [f m]
+  (into {} (for [[k v] m] [k (f v)])))
+
+(defn assoc-if
+  "Associates key with value in map only if value is not nil."
+  [m k v]
+  (if (nil? v) m (assoc m k v)))
+
+(defn json-response
+  "Returns a Ring response with JSON body and appropriate headers."
+  [data & [status]]
+  {:status (or status 200)
+   :headers {"Content-Type" "application/json"}
+   :body (json/write-str data)})
+
+(defn redirect
+  "Returns a Ring redirect response."
+  [url]
+  {:status 302
+   :headers {"Location" url}
+   :body ""})
+
+(defn safe-parse-date
+  "Parses a string to java.util.Date using the given format, returns nil if invalid."
+  [s fmt]
+  (try
+    (.parse (java.text.SimpleDateFormat. fmt) s)
+    (catch Exception _ nil)))
+
+(defn format-date
+  "Formats a java.util.Date as a string using the given format."
+  [date fmt]
+  (.format (java.text.SimpleDateFormat. fmt) date))
+
+(defn html-response
+  "Returns a Ring response with HTML body and appropriate headers."
+  [html & [status]]
+  {:status (or status 200)
+   :headers {"Content-Type" "text/html; charset=utf-8"}
+   :body html})
+
+(defn text-response
+  "Returns a Ring response with plain text body and appropriate headers."
+  [text & [status]]
+  {:status (or status 200)
+   :headers {"Content-Type" "text/plain; charset=utf-8"}
+   :body text})
+
+(defn pdf-response
+  "Returns a Ring response with PDF body and appropriate headers.
+   Expects pdf-bytes to be a byte array."
+  [pdf-bytes & [status filename]]
+  {:status (or status 200)
+   :headers (merge
+             {"Content-Type" "application/pdf"}
+             (when filename
+               {"Content-Disposition" (str "attachment; filename=\"" filename "\"")}))
+   :body pdf-bytes})
+
+(defn xml-response
+  "Returns a Ring response with XML body and appropriate headers."
+  [xml-str & [status]]
+  {:status (or status 200)
+   :headers {"Content-Type" "application/xml; charset=utf-8"}
+   :body xml-str})
+
+;; ----------------------------------------------------------------------
+;; Example usage and quick tests (remove or comment out in production)
 (comment
-  ;; Usage now requires passing the request map:
-  ;; (user-level request)
-  ;; (user-email request)
-  ;; (user-name request)
-  (month-options "billing" "bill_date")
+  ;; Session/user helpers
+  (get-session-id {:session {:user_id 1}})
+  (user-level {:session {:user_id 1}})
+  (user-email {:session {:user_id 1}})
+  (user-name {:session {:user_id 1}})
+
+  ;; Time formatting
+  (seconds->string 90061)
+
+  ;; Image link
+  (image-link "avatar.png")
+
+  ;; Year/month options
   (year-options "billing" "bill_date")
-  (seconds->string 90061))
+  (month-options "billing" "bill_date")
+
+  ;; Foreign key lookup
+  (foreign-key 1 "users" "username")
+
+  ;; Options for select fields
+  (get-options "users" "id" "firstname")
+  (get-options "users" "id" ["firstname" "lastname"] :sort-by ["lastname" "firstname"])
+
+  ;; String and parsing helpers
+  (not-empty-str "hello")
+  (not-empty-str "")
+  (parse-int "123")
+  (parse-int "abc")
+  (parse-float "3.14")
+  (parse-float "abc")
+  (parse-bool "true")
+  (parse-bool "no")
+  (uuid)
+  (slugify "Hello, World! 2024")
+  ;; Safe get
+  (safe-get {:a {:b 1}} [:a :b])
+  (safe-get {:a {:b 1}} [:a :c])
+  (ensure-vector 1)
+  (ensure-vector [1 2])
+  (ensure-vector nil)
+
+  ;; Safe get
+  (safe-get {:a {:b 1}} [:a :b])
+  (safe-get {:a {:b 1}} [:a :c])
+
+  ;; Date/time helpers
+  (now-sql)
+  (safe-parse-date "2024-01-01" "yyyy-MM-dd")
+  (format-date (java.util.Date.) "yyyy-MM-dd")
+
+  ;; Map and string helpers
+  (keywordize-keys {"a" 1 "b" {"c" 2}})
+  (str->keyword "foo")
+  (blank->nil "")
+  (blank->nil "bar")
+  (nil-or-empty? nil)
+  (nil-or-empty? "")
+  (nil-or-empty? [])
+  (nil-or-empty? [1])
+  (map-values inc {:a 1 :b 2})
+  (assoc-if {:a 1} :b 2)
+  (assoc-if {:a 1} :b nil)
+
+  ;; Web helpers
+  (json-response {:ok true})
+  (json-response {:ok false} 400)
+  (html-response "<h1>Hello</h1>")
+  (text-response "Just some text")
+  (pdf-response (byte-array 0) 200 "file.pdf")
+  (xml-response "<root><ok>true</ok></root>")
+  (redirect "/login"))
