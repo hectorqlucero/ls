@@ -1,7 +1,11 @@
 (ns {{name}}.models.util
   (:require
-   [{{name}}.models.crud :refer [config db Query]]
-   [clojure.core :refer [random-uuid]]))
+   [clojure.core :refer [random-uuid]]
+   [clojure.data.json :as json]
+   [clojure.string :as st]
+   [clojure.walk :as walk]
+   [{{name}}.models.crud :refer [config db Query]]))
+
 (defn get-session-id [request]
   (try
     (if-let [uid (get-in request [:session :user_id])]

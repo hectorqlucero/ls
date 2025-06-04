@@ -21,19 +21,6 @@
                         "(application request title ok nil \"No autorizado para ver este recurso (nivel 2)\"))")
     (= security 3) "(application request title ok js content)"))
 
-(defn process-security [security]
-  (cond
-    (= security 1) (str "(if\n"
-                        "(or\n"
-                        "(= (user-level request) \"A\")\n"
-                        "(= (user-level request) \"S\"))\n"
-                        "(application request title ok js content)\n"
-                        "(application request title ok nil \"" security-comments-1 "\"))")
-    (= security 2) (str "(if (= (user-level request) \"S\")\n"
-                        "(application request title ok js content)\n"
-                        "(application request title ok nil \"" security-comments-2 "\"))")
-    (= security 3) (str "(application request title ok js content)")))
-
 ;; Start build-grid
 (defn build-grid-controller
   [options]
