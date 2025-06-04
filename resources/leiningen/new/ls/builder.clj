@@ -15,10 +15,10 @@
                         "(= (user-level request) \"A\")\n"
                         "(= (user-level request) \"S\"))\n"
                         "(application request title ok js content)\n"
-                        "(application request title ok nil \"No autorizado para ver este recurso (nivel 1)\"))")
+                        "(application request title ok nil \"Not authorized to access this item! (level 1)\"))")
     (= security 2) (str "(if (= (user-level request) \"S\")\n"
                         "(application request title ok js content)\n"
-                        "(application request title ok nil \"No autorizado para ver este recurso (nivel 2)\"))")
+                        "(application request title ok nil \"Not authorized to access this item! (level 2)\"))")
     (= security 3) "(application request title ok js content)"))
 
 ;; Start build-grid
