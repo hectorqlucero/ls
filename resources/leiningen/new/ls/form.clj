@@ -330,16 +330,27 @@
 ;; =============================================================================
 
 (defn form
-  "Creates a professional form container with Bootstrap 5 styling"
-  [href fields buttons]
+  "Creates a professional form container with Bootstrap 5 styling and themed colors"
+  [title href fields buttons]
   (list
-   [:div.container.border.bg-light
-    [:form {:method "POST"
-            :enctype "multipart/form-data"
-            :action href}
-     (anti-forgery-field)
-     fields
-     buttons]]))
+   [:div.container.d-flex.justify-content-center.align-items-center
+    {:style "min-height: 45vh;"}
+    [:div.card.shadow-lg
+     {:style "width: 100%; max-width: 600px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+               border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); overflow: hidden;"}
+     [:div.card-header
+      {:style "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-bottom: none; padding: 1.5rem; color: white;"}
+      [:h4.mb-0.fw-bold.text-center
+       {:style "margin: 0; font-weight: 700; font-size: 1.25rem; text-shadow: 0 1px 3px rgba(0,0,0,0.2); letter-spacing: 0.025em; word-break: break-word;"}
+       title]]
+     [:div.card-body.p-4
+      [:form {:method "POST"
+              :enctype "multipart/form-data"
+              :action href}
+       (anti-forgery-field)
+       fields
+       [:div.d-grid.gap-2.mt-4 buttons]]]]]))
 
 ;; =============================================================================
 ;; Usage Examples (Documentation)
