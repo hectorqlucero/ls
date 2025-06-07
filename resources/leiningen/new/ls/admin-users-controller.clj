@@ -14,7 +14,9 @@
         js nil
         rows (get-users)
         content (users-view title rows)]
-    (application request title ok js content)))
+    (if (= (user-level request) "S")
+      (application request title ok js content)
+      (application request title ok nil "Not authorized to access this item! (level 'S')"))))
 
 (defn users-edit
   [request id]

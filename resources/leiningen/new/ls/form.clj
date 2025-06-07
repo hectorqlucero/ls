@@ -2,6 +2,7 @@
   (:require
    [ring.util.anti-forgery :refer [anti-forgery-field]]
    [{{name}}.models.crud :refer [config]]))
+
 ;; =============================================================================
 ;; Authentication Forms
 ;; =============================================================================
@@ -111,15 +112,6 @@
 ;; Form Field Builders
 ;; =============================================================================
 
-(defn build-hidden-field
-  "Creates a hidden input field with specified attributes
-   Args: {:id string :name string :value string}"
-  [args]
-  [:input {:type "hidden"
-           :id (:id args)
-           :name (:name args)
-           :value (:value args)}])
-
 (defn build-image-field
   "Renders an image upload field with preview functionality"
   [row]
@@ -148,8 +140,7 @@
   "JavaScript for image preview functionality with smooth animations"
   []
   [:script
-   (str
-    "
+   "
     $(document).ready(function() {
       $('img').click(function() {
         var img = $(this);
@@ -162,131 +153,181 @@
         }
       });
     });
-    ")])
-
-(defn build-dashboard-image
-  "Renders a compact dashboard image with professional styling"
-  [row]
-  (list
-   [:div.d-inline-block.me-2
-    [:div.avatar-container.position-relative
-     [:img#image1.rounded-circle.shadow-sm
-      {:width "32"
-       :height "32"
-       :src (str (:path config) (:imagen row))
-       :onError "this.src='/images/placeholder_profile.png'"
-       :style "cursor: pointer; object-fit: cover; transition: all 0.3s ease; background: #f8fafc; border-radius: 8px;"}]
-     [:div.position-absolute.bottom-0.end-0.translate-middle
-      [:span.badge.bg-success.rounded-pill {:style "width: 8px; height: 8px; padding: 0;"}]]]]))
-
-(defn build-dashboard-image-script
-  "JavaScript for dashboard image interactions"
-  []
-  [:script
-   (str
-    "
-    $(document).ready(function() {
-      $('img').hover(
-        function() { $(this).addClass('shadow'); },
-        function() { $(this).removeClass('shadow'); }
-      ).click(function() {
-        var img = $(this);
-        if(img.width() < 500) {
-          img.animate({width: '500', height: '500'}, 1000);
-          img.removeClass('rounded-circle').addClass('rounded shadow-lg');
-        } else {
-          img.animate({width: img.attr('width'), height: img.attr('height')}, 1000);
-          img.addClass('rounded-circle').removeClass('rounded shadow-lg');
-        }
-      });
-    });
-    ")])
+    "])
 
 (defn build-field
-  "Creates a professional form field with Bootstrap 5 styling
-   Args: {:label string :type string :id string :name string :placeholder string :required bool :error string :value string}"
+  "Creates a professional form field with Bootstrap 5 styling and correct HTML5/Bootstrap5 field type rendering.
+   Args: {:label string :type string :id string :name string :placeholder string :required bool :error string :value string :options vector (for select/radio) :step :min :max :multiple :readonly :disabled :pattern string :autocomplete string :accept string :autofocus bool :checked bool :size int :maxlength int :minlength int :list string :inputmode string :spellcheck bool :form string :dirname string :tabindex int :aria-label string :aria-describedby string ...}"
   [args]
-  (let [my-class (str "form-control form-control-lg" (when (= (:required args) true) " mandatory"))
-        args (assoc args :class my-class)]
-    (list
-     [:div.mb-3
-      [:label.form-label.fw-semibold {:for (:name args)}
-       (:label args)
-       (when (= (:required args) true)
-         [:span.text-danger.ms-1 "*"])]
-      [:input (merge args
-                     {:class my-class
-                      :style "transition: all 0.3s ease; background: #f8fafc; border-radius: 8px;"})]])))
+  (let [type (:type args)
+        my-class (str "form-control form-control-lg" (when (= (:required args) true) " mandatory"))
+        base-style "transition: all 0.3s ease; border-radius: 8px; background-color: #f8fafc;"
+        label-el [:label.form-label.fw-semibold {:for (:name args)}
+                  (:label args)
+                  (when (= (:required args) true)
+                    [:span.text-danger.ms-1 "*"])]]
+    (cond
+      ;; Support for hidden fields
+      (= type "hidden")
+      [:input (merge {:type "hidden"
+                      :id (:id args)
+                      :name (:name args)
+                      :value (:value args)}
+                     (select-keys args [:autocomplete :form :dirname :tabindex :aria-label :aria-describedby]))]
 
-(defn build-textarea
-  "Creates a professional textarea field with Bootstrap 5 styling
-   Args: {:label string :id string :name string :placeholder string :required bool :error string :value string :rows string}"
-  [args]
-  (list
-   [:div.mb-3
-    [:label.form-label.fw-semibold {:for (:name args)}
-     (:label args)
-     (when (= (:required args) true)
-       [:span.text-danger.ms-1 "*"])]
-    [:textarea.form-control.form-control-lg
-     {:id (:id args)
-      :name (:name args)
-      :rows (:rows args)
-      :placeholder (:placeholder args)
-      :required (:required args)
-      :class (str "form-control form-control-lg" (when (= (:required args) true) " mandatory"))
-      :oninvalid (str "this.setCustomValidity('" (:error args) "')")
-      :oninput "this.setCustomValidity('')"
-      :style "transition: all 0.3s ease; resize: vertical; background: #f8fafc; border-radius: 8px;"}
-     (:value args)]]))
+      (= type "select")
+      [:div.mb-3
+       label-el
+       [:select.form-select.form-select-lg
+        (merge
+         {:id (:id args)
+          :name (:name args)
+          :required (:required args)
+          :class (str "form-select form-select-lg" (when (= (:required args) true) " mandatory"))
+          :oninvalid (str "this.setCustomValidity('" (:error args) "')")
+          :oninput "this.setCustomValidity('')"
+          :style base-style
+          :multiple (:multiple args)
+          :disabled (:disabled args)
+          :readonly (:readonly args)
+          :autofocus (:autofocus args)
+          :size (:size args)
+          :tabindex (:tabindex args)
+          :aria-label (:aria-label args)
+          :aria-describedby (:aria-describedby args)}
+         (when (:value args) {:defaultValue (:value args)}))
+        (for [option (:options args)]
+          [:option (merge
+                    {:value (:value option)
+                     :selected (if (= (:value args) (:value option)) true false)}
+                    (select-keys option [:disabled :label]))
+           (:label option)])]]
 
-(defn build-select
-  "Creates a professional select dropdown with Bootstrap 5 styling
-   Args: {:label string :id string :name string :required bool :error string :options vector :value string}"
-  [args]
-  (let [options (:options args)]
-    (list
-     [:div.mb-3
-      [:label.form-label.fw-semibold {:for (:name args)}
-       (:label args)
-       (when (= (:required args) true)
-         [:span.text-danger.ms-1 "*"])]
-      [:select.form-select.form-select-lg
-       {:id (:id args)
-        :name (:name args)
-        :required (:required args)
-        :class (str "form-select form-select-lg" (when (= (:required args) true) " mandatory"))
-        :oninvalid (str "this.setCustomValidity('" (:error args) "')")
-        :oninput "this.setCustomValidity('')"
-        :style "transition: all 0.3s ease; background: #f8fafc; border-radius: 8px;"}
-       (map (partial (fn [option]
-                       (list
-                        [:option {:value (:value option)
-                                  :selected (if (= (:value args) (:value option)) true false)}
-                         (:label option)]))) options)]])))
+      (or (= type "radio") (= type "checkbox"))
+      [:div.mb-3
+       [:label.form-label.fw-semibold.d-block (:label args)]
+       [:div.mt-2
+        (for [option (:options args)]
+          [:div.form-check.form-check-inline.me-4
+           [:input.form-check-input
+            (merge
+             {:type type
+              :id (:id option)
+              :name (:name args)
+              :value (:value option)
+              :checked (when (= (:value args) (:value option)) true)
+              :required (:required args)
+              :disabled (:disabled args)
+              :readonly (:readonly args)
+              :style "transform: scale(1.2); background-color: #f8fafc; border-radius: 8px;"
+              :autofocus (:autofocus args)
+              :tabindex (:tabindex args)
+              :aria-label (:aria-label args)
+              :aria-describedby (:aria-describedby args)
+              :form (:form args)}
+             (select-keys option [:pattern :min :max :step :autocomplete :spellcheck :form :dirname :list :inputmode :size :maxlength :minlength]))]
+           [:label.form-check-label.fw-medium.ms-2
+            {:for (:id option)}
+            (:label option)]])]]
 
-(defn build-radio
-  "Creates a professional radio button group with Bootstrap 5 styling
-   Args: {:label string :name string :options vector :value string}"
-  [args]
-  (let [options (:options args)]
-    (list
-     [:div.mb-3
-      [:label.form-label.fw-semibold.d-block (:label args)]
-      [:div.mt-2
-       (map (partial (fn [option]
-                       (list
-                        [:div.form-check.form-check-inline.me-4
-                         [:input.form-check-input
-                          {:type "radio"
-                           :id (:id option)
-                           :name (:name args)
-                           :value (:value option)
-                           :checked (if (= (:value args) (:value option)) true false)
-                           :style "transform: scale(1.2); background: #f8fafc; border-radius: 8px;"}]
-                         [:label.form-check-label.fw-medium.ms-2
-                          {:for (:id option)}
-                          (:label option)]]))) options)]])))
+      (= type "textarea")
+      [:div.mb-3
+       label-el
+       [:textarea
+        (merge
+         {:class my-class
+          :id (:id args)
+          :name (:name args)
+          :rows (or (:rows args) 4)
+          :placeholder (:placeholder args)
+          :required (:required args)
+          :oninvalid (str "this.setCustomValidity('" (:error args) "')")
+          :oninput "this.setCustomValidity('')"
+          :style (str base-style "resize: vertical;")
+          :disabled (:disabled args)
+          :readonly (:readonly args)
+          :autofocus (:autofocus args)
+          :tabindex (:tabindex args)
+          :aria-label (:aria-label args)
+          :aria-describedby (:aria-describedby args)
+          :form (:form args)
+          :maxlength (:maxlength args)
+          :minlength (:minlength args)
+          :spellcheck (:spellcheck args)
+          :dirname (:dirname args)}
+         (select-keys args [:autocomplete :inputmode :list]))
+        (:value args)]]
+
+      ;; All other HTML5 input types
+      (or (= type "number") (= type "email") (= type "password") (= type "date") (= type "time")
+          (= type "file") (= type "tel") (= type "url") (= type "color") (= type "range")
+          (= type "search") (= type "datetime-local") (= type "month") (= type "week"))
+      [:div.mb-3
+       label-el
+       [:input
+        (merge
+         {:type type
+          :id (:id args)
+          :name (:name args)
+          :placeholder (:placeholder args)
+          :value (:value args)
+          :required (:required args)
+          :class my-class
+          :oninvalid (str "this.setCustomValidity('" (:error args) "')")
+          :oninput "this.setCustomValidity('')"
+          :style base-style
+          :step (:step args)
+          :min (:min args)
+          :max (:max args)
+          :pattern (:pattern args)
+          :autocomplete (:autocomplete args)
+          :autofocus (:autofocus args)
+          :disabled (:disabled args)
+          :readonly (:readonly args)
+          :tabindex (:tabindex args)
+          :aria-label (:aria-label args)
+          :aria-describedby (:aria-describedby args)
+          :form (:form args)
+          :dirname (:dirname args)
+          :size (:size args)
+          :maxlength (:maxlength args)
+          :minlength (:minlength args)
+          :list (:list args)
+          :inputmode (:inputmode args)
+          :accept (:accept args)
+          :spellcheck (:spellcheck args)})]]
+
+      :else
+      [:div.mb-3
+       label-el
+       [:input
+        (merge
+         {:type (or type "text")
+          :id (:id args)
+          :name (:name args)
+          :placeholder (:placeholder args)
+          :value (:value args)
+          :required (:required args)
+          :class my-class
+          :oninvalid (str "this.setCustomValidity('" (:error args) "')")
+          :oninput "this.setCustomValidity('')"
+          :style base-style
+          :disabled (:disabled args)
+          :readonly (:readonly args)
+          :pattern (:pattern args)
+          :autocomplete (:autocomplete args)
+          :autofocus (:autofocus args)
+          :tabindex (:tabindex args)
+          :aria-label (:aria-label args)
+          :aria-describedby (:aria-describedby args)
+          :form (:form args)
+          :dirname (:dirname args)
+          :size (:size args)
+          :maxlength (:maxlength args)
+          :minlength (:minlength args)
+          :list (:list args)
+          :inputmode (:inputmode args)
+          :spellcheck (:spellcheck args)})]])))
 
 ;; =============================================================================
 ;; Button Builders
@@ -412,70 +453,75 @@
 ;; =============================================================================
 
 (comment
-  ;; Example usage for each builder function
+  ;; =========================
+  ;; Example usage for testing
+  ;; =========================
 
-  ;; Hidden field
-  (build-hidden-field {:id "id" :name "id" :value "123"})
-
-  ;; Image field
-  (build-image-field {:imagen "profile.jpg" :path "/uploads/"})
-
-  ;; Text field
-  (build-field {:label "Full Name"
-                :type "text"
-                :id "nombre"
-                :name "nombre"
-                :placeholder "Enter full name..."
-                :required true
-                :value ""})
-
-  ;; Textarea
-  (build-textarea {:label "Comments"
-                   :id "comentarios"
-                   :name "comentarios"
-                   :rows "4"
-                   :placeholder "Enter your comments here..."
-                   :required true
-                   :error "Comments are required!"
-                   :value "Sample comment text"})
-
-  ;; Select
-  (build-select {:label "User Level"
-                 :id "level"
-                 :name "level"
-                 :value "U"
-                 :required true
-                 :error "User level is required..."
-                 :options [{:value "" :label "Select user level..."}
-                           {:value "U" :label "User"}
-                           {:value "A" :label "Administrator"}
-                           {:value "S" :label "System"}]})
-
-  ;; Radio
-  (build-radio {:label "Account Status"
-                :name "active"
-                :value "T"
+  ;; build-field: All HTML5 field types and attributes
+  (build-field {:type "hidden" :id "user-id" :name "user-id" :value "42"})
+  (build-field {:label "Full Name" :type "text" :id "name" :name "name" :placeholder "Enter name" :required true :maxlength 50 :pattern "[A-Za-z ]+" :autocomplete "name" :autofocus true})
+  (build-field {:label "Email" :type "email" :id "email" :name "email" :placeholder "Enter email" :required true :autocomplete "email"})
+  (build-field {:label "Password" :type "password" :id "pw" :name "pw" :placeholder "Password" :required true :minlength 8 :autocomplete "new-password"})
+  (build-field {:label "Age" :type "number" :id "age" :name "age" :min 0 :max 120 :step 1 :required true})
+  (build-field {:label "Birthday" :type "date" :id "bday" :name "bday" :required true})
+  (build-field {:label "Appointment" :type "datetime-local" :id "appt" :name "appt"})
+  (build-field {:label "Favorite Color" :type "color" :id "color" :name "color" :value "#ff0000"})
+  (build-field {:label "Satisfaction" :type "range" :id "satisfaction" :name "satisfaction" :min 1 :max 10 :step 1 :value 5})
+  (build-field {:label "Phone" :type "tel" :id "phone" :name "phone" :pattern "[0-9\\-\\+ ]{7,15}" :autocomplete "tel"})
+  (build-field {:label "Website" :type "url" :id "website" :name "website" :placeholder "https://..."})
+  (build-field {:label "Resume" :type "file" :id "resume" :name "resume" :accept ".pdf,.doc,.docx" :multiple true})
+  (build-field {:label "Month" :type "month" :id "month" :name "month"})
+  (build-field {:label "Week" :type "week" :id "week" :name "week"})
+  (build-field {:label "Search" :type "search" :id "search" :name "search" :placeholder "Search..."})
+  (build-field {:label "User Level" :type "select" :id "level" :name "level" :value "U" :required true
+                :options [{:value "" :label "Select..."}
+                          {:value "U" :label "User"}
+                          {:value "A" :label "Admin" :disabled true}
+                          {:value "S" :label "Sys"}]
+                :multiple false :size 1})
+  (build-field {:label "Status" :type "radio" :name "active" :value "T"
                 :options [{:id "activeT" :label "Active" :value "T"}
                           {:id "activeF" :label "Inactive" :value "F"}]})
+  (build-field {:label "Interests" :type "checkbox" :name "interests" :value "sports"
+                :options [{:id "sports" :label "Sports" :value "sports"}
+                          {:id "music" :label "Music" :value "music"}
+                          {:id "tech" :label "Tech" :value "tech"}]})
+  (build-field {:label "Comments" :type "textarea" :id "comments" :name "comments" :rows 4 :placeholder "Your comments..." :maxlength 500 :minlength 10 :spellcheck true})
 
-  ;; Primary input button
+  ;; build-image-field: Image upload with preview
+  #_{:clj-kondo/ignore [:unresolved-symbol]}
+  (build-image-field row)
+
+  ;; build-image-field-script: JS for image preview
+  (build-image-field-script)
+
+  ;; build-primary-input-button: Primary submit button
   (build-primary-input-button {:type "submit" :value "Save"})
 
-  ;; Secondary input button
+  ;; build-secondary-input-button: Secondary/cancel button
   (build-secondary-input-button {:type "button" :value "Cancel"})
 
-  ;; Primary anchor button
+  ;; build-primary-anchor-button: Primary anchor button
   (build-primary-anchor-button {:label "Go" :href "/go"})
 
-  ;; Secondary anchor button
+  ;; build-secondary-anchor-button: Secondary anchor button
   (build-secondary-anchor-button {:label "Back" :href "/back"})
 
-  ;; Modal buttons
+  ;; build-modal-buttons: Modal dialog buttons
   (build-modal-buttons {:view false})
 
-  ;; Main form
+  ;; build-form-buttons: Form submit/cancel buttons
+  (build-form-buttons {:cancel-url "/" :view false})
+
+  ;; form: Main form container with fields and buttons
   (form "/submit"
-        [(build-field {:label "Name" :type "text" :id "name" :name "name" :placeholder "Name" :required true :value ""})]
-        [(build-primary-input-button {:type "submit" :value "Submit"})
-         (build-secondary-input-button {:type "button" :value "Cancel"})]
+        [(build-field {:label "Name" :type "text" :id "name" :name "name" :placeholder "Name" :required true})
+         (build-field {:label "Email" :type "email" :id "email" :name "email" :placeholder "Email" :required true})
+         (build-field {:label "User Level" :type "select" :id "level" :name "level" :value "U" :required true
+                       :options [{:value "" :label "Select..."}
+                                 {:value "U" :label "User"}
+                                 {:value "A" :label "Admin"}
+                                 {:value "S" :label "Sys"}]})]
+        (list (build-primary-input-button {:type "submit" :value "Submit"})
+              (build-secondary-input-button {:type "button" :value "Cancel"}))
         "Example Form"))

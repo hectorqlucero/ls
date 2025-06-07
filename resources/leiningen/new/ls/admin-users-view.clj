@@ -1,7 +1,6 @@
 (ns {{name}}.handlers.admin.users.view
   (:require
-   [{{name}}.models.form :refer [build-field build-hidden-field build-modal-buttons
-                           build-radio build-select form]]
+   [{{name}}.models.form :refer [build-field build-hidden-field build-modal-buttons form]]
    [{{name}}.models.grid :refer [build-grid build-modal modal-script]]))
 
 (defn users-view
@@ -18,9 +17,10 @@
 (defn build-users-fields
   [row]
   (list
-   (build-hidden-field {:id "id"
-                        :name "id"
-                        :value (:id row)})
+    (build-field {:id "id"
+                  :type "hidden"
+                  :name "id"
+                  :value (:id row)})
    (build-field {:label "Lastname:"
                  :type "text"
                  :id "lastname"
@@ -54,7 +54,8 @@
                  :name "cell"
                  :required false
                  :value (:cell row)})
-   (build-select {:label "User Level"
+   (build-field {:label "User Level"
+                  :type "select"
                   :id "level"
                   :name "level"
                   :required true
@@ -68,7 +69,8 @@
                              :label "Administrator"}
                             {:value "S"
                              :label "System"}]})
-   (build-radio {:label "Status:"
+   (build-field {:label "Status:"
+                 :type "radio"
                  :name "active"
                  :value (:active row)
                  :options [{:id "activeT"

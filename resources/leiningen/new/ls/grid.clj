@@ -1,6 +1,7 @@
 (ns {{name}}.models.grid
   (:require
    [clojure.string :as st]))
+
 ;; start build-gid
 (defn build-grid-head
   [href fields & args]
@@ -266,3 +267,38 @@
    myModal.show();
    "])
 ;; End build-modal
+
+(comment
+  ;; Example usage for main functions in this file
+
+  ;; build-grid: Renders a responsive, feature-rich Bootstrap table with edit/delete/new buttons.
+  (build-grid
+   "Employee List"
+   [{:id 1 :name "Alice" :email "alice@example.com"}
+    {:id 2 :name "Bob" :email "bob@example.com"}]
+   "employee_table"
+   [[:name "Name"] [:email "Email"]]
+   "/employees"
+   {:new true :edit true :delete true})
+
+  ;; build-dashboard: Renders a responsive Bootstrap table for dashboard views (no edit/delete/new buttons).
+  (build-dashboard
+   "Employee Dashboard"
+   [{:id 1 :name "Alice" :email "alice@example.com"}
+    {:id 2 :name "Bob" :email "bob@example.com"}]
+   "dashboard_table"
+   [[:name "Name"] [:email "Email"]])
+
+  ;; build-modal: Renders a Bootstrap modal dialog with a custom form or content.
+  (build-modal
+   "Edit Employee"
+   nil
+   [:form
+    {:method "POST" :action "/employees/edit"}
+    [:div.mb-3
+     [:label.form-label.fw-semibold {:for "name"} "Name"]
+     [:input.form-control.form-control-lg {:type "text" :id "name" :name "name" :placeholder "Enter name..." :required true :value ""}]]
+    [:div.mb-3
+     [:label.form-label.fw-semibold {:for "email"} "Email"]
+     [:input.form-control.form-control-lg {:type "email" :id "email" :name "email" :placeholder "Enter email..." :required true :value ""}]]
+    [:button.btn.btn-primary {:type "submit"} "Save"]]))
