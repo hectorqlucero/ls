@@ -358,24 +358,30 @@
           [:footer.bg-light.text-center.fixed-bottom
            [:span "Copyright © "
             (t/year (t/now)) " " (:company-name config) " - All Rights Reserved"]]]))
-
 (defn error-404 [content return-url]
-  (html5 {:ng-app (:site-name config) :lang "es"}
+  (html5 {:ng-app (:site-name config) :lang "en-US"}
          [:head
-          [:title "Mesaje"]
+          [:title "Message"]
           [:meta {:charset "UTF-8"}]
           [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
           (app-css)
           [:link {:rel "shortcut icon" :type "image/x-icon" :href "data:image/x-icon;,"}]]
          [:body
-          [:div.container.flex-nowrap.overflow-auto.margin-top {:style "margin-top:75px;margin-bottom:25px;"}
-           (menus-none)
-           [:div {:style "padding-left:14px;"}
-            [:div.text-center
-             [:p [:h3 [:b "Message: "]] [:h3 content]]
-             [:p [:h3 [:a.text-info {:href return-url} "Click here to " [:strong "Continue"]]]]]]]
+          [:div.container.d-flex.justify-content-center.align-items-center
+           {:style "min-height: 70vh;"}
+           [:div.card.shadow-lg
+            {:style "width: 100%; max-width: 520px; border-radius: 16px; border: 1px solid #e2e8f0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);"}
+            [:div.card-header.text-white.text-center
+             {:style "border-top-left-radius: 16px; border-top-right-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"}
+             [:h4.mb-0.fw-bold "Message"]]
+            [:div.card-body.p-4
+             [:div.text-center
+              [:h4.mb-3.fw-semibold (if (sequential? content) (doall content) content)]
+              [:a.btn.btn-primary.btn-lg.fw-semibold.shadow-sm.mt-3
+               {:href return-url
+                :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; font-size: 1rem; box-shadow: 0 2px 8px rgba(13,110,253,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}
+               [:i.bi.bi-arrow-left.me-2] "Return to previous page"]]]]]
           (app-js)
-          nil
           [:footer.bg-light.text-center.fixed-bottom
            [:span "Copyright © "
             (t/year (t/now)) " " (:company-name config) " - All Rights Reserved"]]]))
