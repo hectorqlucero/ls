@@ -5,7 +5,7 @@
                                                 users-modal-script users-view]]
    [{{name}}.layout :refer [application error-404]]
    [{{name}}.models.crud :refer [build-form-delete build-form-save]]
-   [{{name}}.models.util :refer [get-session-id]]))
+   [{{name}}.models.util :refer [get-session-id user-level]]))
 
 (defn users
   [request]

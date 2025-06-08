@@ -1,6 +1,6 @@
 (ns {{name}}.handlers.admin.users.view
   (:require
-   [{{name}}.models.form :refer [build-field build-hidden-field build-modal-buttons form]]
+   [{{name}}.models.form :refer [build-field build-modal-buttons form]]
    [{{name}}.models.grid :refer [build-grid build-modal modal-script]]))
 
 (defn users-view

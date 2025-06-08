@@ -108,10 +108,11 @@
     (cond
       (= tipo "text")
       (str
-       "(build-textarea {:label \"" (st/upper-case field) "\"\n"
+       "(build-field {:label \"" (st/upper-case field) "\"\n"
+       "  :type \"textarea\"\n"
        "  :id \"" field "\"\n"
        "  :name \"" field "\"\n"
-       "  :rows \"3\"\n"
+       "  :rows \"4\"\n"
        "  :placeholder \"" field " here...\"\n"
        "  :required false\n"
        "  :value (:" field " row)})\n")
@@ -146,7 +147,7 @@
     (str
      "(ns " ns-root ".view\n"
      "  (:require [ring.util.anti-forgery :refer [anti-forgery-field]]\n"
-     "            [{{name}}.models.form :refer [form build-hidden-field build-field build-select build-radio build-modal-buttons build-textarea]]\n"
+     "            [{{name}}.models.form :refer [form build-field build-modal-buttons]]\n"
      "            [{{name}}.models.grid :refer [build-grid build-modal modal-script]]))\n\n"
      "(defn " folder "-view\n"
      "  [title rows]\n"
@@ -170,9 +171,10 @@
      "(defn build-" folder "-fields\n"
      "  [row]\n"
      "  (list\n"
-     "    (build-hidden-field {:id \"id\"\n"
-     "                        :name \"id\"\n"
-     "                        :value (:id row)})\n"
+     "    (build-field {:id \"id\"\n"
+     "                  :type \"hidden\"\n"
+     "                  :name \"id\"\n"
+     "                  :value (:id row)})\n"
      (apply str (map build-grid-form-col cols))
      "  ))\n\n"
      "(defn build-" folder "-form\n"
