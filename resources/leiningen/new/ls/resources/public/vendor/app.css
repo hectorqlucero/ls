@@ -1,0 +1,101 @@
+body {
+  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+  min-height: 100vh;
+}
+
+.navbar-brand span {
+  letter-spacing: 0.04em;
+}
+
+.navbar {
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link.active.bg-gradient {
+  background: linear-gradient(90deg, #bae6fd 0%, #bbf7d0 100%) !important;
+  color: #0ea5e9 !important;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.10) !important;
+}
+
+/* New Record button: pastel green */
+.new-record-btn {
+  background: linear-gradient(90deg, #bbf7d0 0%, #a7f3d0 100%) !important;
+  color: #166534 !important;
+  border: 2px solid #22c55e !important;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.10) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Disabled state for New Record button */
+.new-record-btn.disabled,
+.new-record-btn[aria-disabled="true"] {
+  background: repeating-linear-gradient(135deg,
+      #e5e7eb 0px,
+      #e5e7eb 10px,
+      #bbf7d0 10px,
+      #a7f3d0 20px) !important;
+  color: #94a3b8 !important;
+  border: 2px solid #cbd5e1 !important;
+  opacity: 0.65 !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+/* DataTables: Responsive, full width, with padding and scroll if needed */
+.dataTables_wrapper,
+#users_table_wrapper {
+  overflow-x: auto !important;
+  max-width: 100% !important;
+}
+
+.col-sm-12 {
+  max-width: 100% !important;
+}
+
+/* Table: responsive, no fixed widths, truncate long content */
+.dataTable {
+  width: 100% !important;
+  table-layout: auto !important;
+}
+
+.dataTable th,
+.dataTable td {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* Remove horizontal padding from DataTables' grid columns (except main container) */
+.dataTables_wrapper .col-sm-12 {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Card/table container: keep padding for visual comfort and prevent clipping */
+.p-3.bg-white.rounded-bottom {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Remove legacy fixed width container override */
+body>div[style*="max-width:900px"] {
+  padding-left: 0 !important;
+}
+
+/* On small screens, allow wrapping in table cells for better fit */
+@media (max-width: 600px) {
+
+  .dataTable th,
+  .dataTable td {
+    white-space: normal;
+  }
+}

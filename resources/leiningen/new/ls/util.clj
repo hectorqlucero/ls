@@ -6,6 +6,19 @@
    [clojure.walk :as walk]
    [{{name}}.models.crud :refer [config db Query]]))
 
+(defn class-merge
+  "Merges base-classes (vector) and attr map's :class (string or vector) into a single :class string, removing duplicates."
+  [base-classes attr]
+  (let [attr-class (:class attr)
+        all-classes (concat base-classes
+                            (cond
+                              (vector? attr-class) attr-class
+                              (string? attr-class) (st/split attr-class #"\s+")
+                              (nil? attr-class) []
+                              :else [attr-class]))
+        class-str (->> all-classes (remove nil?) distinct (st/join " "))]
+    (assoc attr :class class-str)))
+
 (defn get-session-id [request]
   (try
     (if-let [uid (get-in request [:session :user_id])]

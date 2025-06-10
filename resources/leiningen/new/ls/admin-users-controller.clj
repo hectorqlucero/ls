@@ -1,11 +1,11 @@
 (ns {{name}}.handlers.admin.users.controller
   (:require
    [{{name}}.handlers.admin.users.model :refer [get-user get-users]]
-   [{{name}}.handlers.admin.users.view :refer [users-add-view users-edit-view
-                                                users-modal-script users-view]]
+   [{{name}}.handlers.admin.users.view :refer [users-view]]
    [{{name}}.layout :refer [application error-404]]
    [{{name}}.models.crud :refer [build-form-delete build-form-save]]
-   [{{name}}.models.util :refer [get-session-id user-level]]))
+   [{{name}}.models.util :refer [get-session-id user-level]]
+   [hiccup.core :refer [html]]))
 
 (defn users
   [request]
@@ -18,38 +18,30 @@
       (application request title ok js content)
       (application request title ok nil "Not authorized to access this item! (level 'S')"))))
 
-(defn users-edit
-  [request id]
-  (let [title "Edit User"
-        ok (get-session-id request)
-        js (users-modal-script)
-        row (get-user id)
-        rows (get-users)
-        content (users-edit-view title row rows)]
-    (application request title ok js content)))
-
-(defn users-add
-  [request]
+(defn users-add-form
+  [_]
   (let [title "New User"
-        ok (get-session-id request)
-        js (users-modal-script)
-        row nil
-        rows (get-users)
-        content (users-add-view title row rows)]
-    (application request title ok js content)))
+        row nil]
+    (html ({{name}}.handlers.admin.users.view/users-add-form title row))))
+
+(defn users-edit-form
+  [_ id]
+  (let [title "Edit User"
+        row (get-user id)]
+    (html ({{name}}.handlers.admin.users.view/users-edit-form title row))))
 
 (defn users-save
-  [{:keys [params]}]
+  [{params :params}]
   (let [table "users"
         result (build-form-save params table)]
     (if result
-      (error-404 "Processed successfully!" "/admin/users")
-      (error-404 "Unable to process record!" "/admin/users"))))
+      {:status 200 :headers {"Content-Type" "application/json"} :body "{\"ok\":true}"}
+      {:status 500 :headers {"Content-Type" "application/json"} :body "{\"ok\":false}"})))
 
 (defn users-delete
   [_ id]
   (let [table "users"
         result (build-form-delete table id)]
-    (if (= result true)
-      (error-404 "Processed successfuly!" "/admin/users")
+    (if result
+      {:status 302 :headers {"Location" "/admin/users"}}
       (error-404 "Unable to process record!" "/admin/users"))))

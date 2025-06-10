@@ -17,10 +17,10 @@
 (defn build-users-fields
   [row]
   (list
-    (build-field {:id "id"
-                  :type "hidden"
-                  :name "id"
-                  :value (:id row)})
+   (build-field {:id "id"
+                 :type "hidden"
+                 :name "id"
+                 :value (:id row)})
    (build-field {:label "Lastname:"
                  :type "text"
                  :id "lastname"
@@ -55,20 +55,20 @@
                  :required false
                  :value (:cell row)})
    (build-field {:label "User Level"
-                  :type "select"
-                  :id "level"
-                  :name "level"
-                  :required true
-                  :error "The user level is a required field..."
-                  :value (:level row)
-                  :options [{:value ""
-                             :label "Select User Level"}
-                            {:value "U"
-                             :label "User"}
-                            {:value "A"
-                             :label "Administrator"}
-                            {:value "S"
-                             :label "System"}]})
+                 :type "select"
+                 :id "level"
+                 :name "level"
+                 :required true
+                 :error "The user level is a required field..."
+                 :value (:level row)
+                 :options [{:value ""
+                            :label "Select User Level"}
+                           {:value "U"
+                            :label "User"}
+                           {:value "A"
+                            :label "Administrator"}
+                           {:value "S"
+                            :label "System"}]})
    (build-field {:label "Status:"
                  :type "radio"
                  :name "active"
@@ -118,3 +118,11 @@
 (defn users-modal-script
   []
   (modal-script))
+
+;; For /admin/users/add (GET)
+(defn users-add-form [title row]
+  (build-users-form title row))
+
+;; For /admin/users/edit/:id (GET)
+(defn users-edit-form [title row]
+  (build-users-form title row))

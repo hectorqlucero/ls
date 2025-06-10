@@ -11,67 +11,62 @@
   "Renders a professional password change form with Bootstrap 5 styling"
   [title]
   (list
-   [:div.container-fluid.d-flex.justify-content-center.align-items-center
-    {:style "min-height: 60vh;"}
-    [:div.card.shadow-lg
-     {:style "width: 100%; max-width: 400px; border-radius: 16px; border: 1px solid #e2e8f0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);"}
+   [:div.container.d-flex.justify-content-center.align-items-center
+    {:style "min-height: 80vh;"}
+    [:div.card.shadow-lg.w-100
+     {:style "max-width: 420px;"}
      [:div.card-header.bg-primary.text-white.text-center
-      {:style "border-top-left-radius: 16px; border-top-right-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"}
       [:h4.mb-0.fw-bold title]]
      [:div.card-body.p-4
       [:form {:method "POST"
               :action "/change/password"
               :class "needs-validation"
-              :novalidate false}
+              :novalidate true}
        (anti-forgery-field)
        [:div.mb-3
         [:label.form-label.fw-semibold {:for "email"}
-         [:i.fas.fa-envelope.me-2] "Email Address"]
+         [:i.bi.bi-envelope.me-2] "Email Address"]
         [:input.form-control.form-control-lg
          {:id "email"
           :name "email"
           :type "email"
           :placeholder "Enter your email address..."
           :required true
-          :autocomplete "username"
-          :style "background: #f8fafc; border-radius: 8px;"}]]
+          :autocomplete "username"}]]
        [:div.mb-4
         [:label.form-label.fw-semibold {:for "password"}
-         [:i.fas.fa-lock.me-2] "New Password"]
+         [:i.bi.bi-lock.me-2] "New Password"]
         [:input.form-control.form-control-lg
          {:id "password"
           :name "password"
           :type "password"
           :placeholder "Enter new password..."
           :required true
-          :autocomplete "new-password"
-          :style "background: #f8fafc; border-radius: 8px;"}]]
+          :autocomplete "new-password"}]]
        [:div.d-flex.gap-2.justify-content-end.mt-4
         [:button.btn.btn-success.btn-lg.fw-semibold
-         {:type "submit"
-          :style "border-radius: 8px;"}
-         [:i.fas.fa-key.me-2] "Change Password"]]]]]]))
+         {:type "submit"}
+         [:i.bi.bi-key.me-2] "Change Password"]]]]]]))
 
 (defn login-form
   "Renders a professional login form with Bootstrap 5 styling"
   [title href]
   (list
-   [:div.container-fluid.d-flex.justify-content-center.align-items-center
-    {:style "min-height: 60vh;"}
-    [:div.card.shadow-lg
-     {:style "width: 100%; max-width: 450px; border-radius: 16px; border: 1px solid #e2e8f0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);"}
+   [:div.container.d-flex.justify-content-center.align-items-center
+    {:style "min-height: 80vh;"}
+    [:div.card.shadow-lg.w-100
+     {:style "max-width: 420px;"}
      [:div.card-header.bg-primary.text-white.text-center
-      {:style "border-top-left-radius: 16px; border-top-right-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"}
       [:h4.mb-0.fw-bold title]]
      [:div.card-body.p-4
       [:form {:method "POST"
               :action href
               :class "needs-validation"
-              :novalidate false}
+              :novalidate true}
        (anti-forgery-field)
        [:div.mb-3
         [:label.form-label.fw-semibold {:for "username"}
-         [:i.fas.fa-user.me-2] "Email Address"]
+         [:i.bi.bi-person.me-2] "Email Address"]
         [:input.form-control.form-control-lg
          {:id "username"
           :name "username"
@@ -81,11 +76,10 @@
           :oninvalid "this.setCustomValidity('Email is required...')"
           :oninput "this.setCustomValidity('')"
           :placeholder "Enter your email address..."
-          :autocomplete "username"
-          :style "background: #f8fafc; border-radius: 8px;"}]]
+          :autocomplete "username"}]]
        [:div.mb-4
         [:label.form-label.fw-semibold {:for "password"}
-         [:i.fas.fa-lock.me-2] "Password"]
+         [:i.bi.bi-lock.me-2] "Password"]
         [:input.form-control.form-control-lg
          {:id "password"
           :name "password"
@@ -95,18 +89,15 @@
           :oninput "this.setCustomValidity('')"
           :placeholder "Enter your password..."
           :type "password"
-          :autocomplete "current-password"
-          :style "background: #f8fafc; border-radius: 8px;"}]]
+          :autocomplete "current-password"}]]
        [:div.d-flex.gap-2.justify-content-end.mt-4
         [:button.btn.btn-success.btn-lg.fw-semibold
-         {:type "submit"
-          :style "border-radius: 8px;"}
-         [:i.fas.fa-sign-in-alt.me-2] "Sign In"]
+         {:type "submit"}
+         [:i.bi.bi-box-arrow-in-right.me-2] "Sign In"]
         [:a.btn.btn-outline-info.btn-lg.fw-semibold
          {:role "button"
-          :href "/change/password"
-          :style "border-radius: 8px;"}
-         [:i.fas.fa-key.me-2] "Change Password"]]]]]]))
+          :href "/change/password"}
+         [:i.bi.bi-key.me-2] "Change Password"]]]]]]))
 
 ;; =============================================================================
 ;; Form Field Builders
@@ -117,24 +108,22 @@
   [row]
   (list
    [:div.mb-3
-    [:label.form-label.fw-semibold [:i.fas.fa-image.me-2] "Upload Image"]
+    [:label.form-label.fw-semibold [:i.bi.bi-image.me-2] "Upload Image"]
     [:input.form-control.form-control-lg
      {:id "file"
       :name "file"
       :type "file"
-      :accept "image/*"
-      :style "background: #f8fafc; border-radius: 8px;"}]]
+      :accept "image/*"}]]
    [:div.text-center.mb-3
     [:div.image-preview-container.d-inline-block.position-relative
      [:img#image1.img-thumbnail.shadow-sm.rounded
       {:width "95"
        :height "71"
        :src (str (:path config) (:imagen row))
-       :onError "this.src='/images/placeholder_profile.png'"
-       :style "cursor: pointer; transition: all 0.3s ease; object-fit: cover; background: #f8fafc; border-radius: 8px;"}]
+       :onError "this.src='/images/placeholder_profile.png'"}]
      [:div.position-absolute.top-0.end-0.translate-middle
       [:span.badge.bg-primary.rounded-pill
-       [:i.fas.fa-search-plus]]]]]))
+       [:i.bi.bi-search-plus]]]]]))
 
 (defn build-image-field-script
   "JavaScript for image preview functionality with smooth animations"
@@ -186,7 +175,6 @@
           :class (str "form-select form-select-lg" (when (= (:required args) true) " mandatory"))
           :oninvalid (str "this.setCustomValidity('" (:error args) "')")
           :oninput "this.setCustomValidity('')"
-          :style base-style
           :multiple (:multiple args)
           :disabled (:disabled args)
           :readonly (:readonly args)
@@ -275,7 +263,6 @@
           :class my-class
           :oninvalid (str "this.setCustomValidity('" (:error args) "')")
           :oninput "this.setCustomValidity('')"
-          :style base-style
           :step (:step args)
           :min (:min args)
           :max (:max args)
@@ -311,7 +298,6 @@
           :class my-class
           :oninvalid (str "this.setCustomValidity('" (:error args) "')")
           :oninput "this.setCustomValidity('')"
-          :style base-style
           :disabled (:disabled args)
           :readonly (:readonly args)
           :pattern (:pattern args)
@@ -337,38 +323,34 @@
   "Creates a primary styled input button
    Args: {:type string :value string}"
   [args]
-  [:input.btn.btn-primary.btn-lg.fw-semibold.shadow-sm
+  [:input.btn.btn-primary.btn-lg.fw-semibold.shadow-sm.rounded
    {:type (:type args)
-    :value (or (:value args) "Submit")
-    :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(13,110,253,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}])
+    :value (or (:value args) "Submit")}])
 
 (defn build-secondary-input-button
   "Creates a secondary styled input button
    Args: {:type string :value string}"
   [args]
-  [:input.btn.btn-outline-secondary.btn-lg.fw-semibold.shadow-sm
+  [:input.btn.btn-outline-secondary.btn-lg.fw-semibold.shadow-sm.rounded
    {:type (:type args)
-    :value (or (:value args) "Cancel")
-    :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(108,117,125,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}])
+    :value (or (:value args) "Cancel")}])
 
 (defn build-primary-anchor-button
   "Creates a primary styled anchor button
    Args: {:label string :href string}"
   [args]
-  [:a.btn.btn-primary.btn-lg.fw-semibold.shadow-sm
+  [:a.btn.btn-primary.btn-lg.fw-semibold.shadow-sm.rounded
    {:type "button"
-    :href (:href args)
-    :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(13,110,253,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}
+    :href (:href args)}
    (:label args)])
 
 (defn build-secondary-anchor-button
   "Creates a secondary styled anchor button
    Args: {:label string :href string}"
   [args]
-  [:a.btn.btn-outline-secondary.btn-lg.fw-semibold.shadow-sm
+  [:a.btn.btn-outline-secondary.btn-lg.fw-semibold.shadow-sm.rounded
    {:type "button"
-    :href (:href args)
-    :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(108,117,125,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}
+    :href (:href args)}
    (:label args)])
 
 (defn build-modal-buttons
@@ -378,14 +360,12 @@
         view (:view args)]
     (list
      (when-not (= view true)
-       [:button.btn.btn-primary.btn-lg.fw-semibold.shadow-sm
-        {:type "submit"
-         :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(13,110,253,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}
+       [:button.btn.btn-primary.btn-lg.fw-semibold.shadow-sm.rounded
+        {:type "submit"}
         "Submit"])
-     [:button.btn.btn-outline-secondary.btn-lg.fw-semibold.shadow-sm
+     [:button.btn.btn-outline-secondary.btn-lg.fw-semibold.shadow-sm.rounded
       {:type "button"
-       :data-bs-dismiss "modal"
-       :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(108,117,125,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}
+       :data-bs-dismiss "modal"}
       "Cancel"])))
 
 (defn build-form-buttons
@@ -397,15 +377,13 @@
         cancel-url (:cancel-url args)]
     (list
      (when-not (= view true)
-       [:button.btn.btn-primary.btn-lg.fw-semibold.shadow-sm
+       [:button.btn.btn-primary.btn-lg.fw-semibold.shadow-sm.rounded
         {:type "submit"
-         :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(13,110,253,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"
          :onclick "if(this.form && !this.form.checkValidity()){this.form.reportValidity();return false;}"} ; HTML5 validation
         "Submit"])
-     [:a.btn.btn-outline-secondary.btn-lg.fw-semibold.shadow-sm
+     [:a.btn.btn-outline-secondary.btn-lg.fw-semibold.shadow-sm.rounded
       {:type "button"
-       :href cancel-url
-       :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; box-shadow: 0 2px 8px rgba(108,117,125,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}
+       :href cancel-url}
       "Cancel"])))
 
 ;; =============================================================================
@@ -414,24 +392,14 @@
 
 (defn form
   "Creates a professional form container with Bootstrap 5 styling and themed colors.
-   If title is passed, it is rendered in the header. Handles HTML5 validation."
-  ([href fields buttons]
-   (form href fields buttons nil))
-  ([href fields buttons title]
-   (list
-    [:div.container.d-flex.justify-content-center.align-items-center
-     {:style "min-height: 45vh;"}
-     [:div.card.shadow-lg
-      {:style "width: 100%; max-width: 700px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-                border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); overflow: hidden;"}
-      (when title
-        [:div.card-header
-         {:style "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                   border-bottom: none; padding: 1.5rem; color: white; border-top-left-radius: 16px; border-top-right-radius: 16px;"}
-         [:h4.mb-0.fw-bold.text-center
-          {:style "margin: 0; font-weight: 700; font-size: 1.25rem; text-shadow: 0 1px 3px rgba(0,0,0,0.2); letter-spacing: 0.025em; word-break: break-word;"}
-          title]])
-      [:div.card-body.p-4
+   If title is passed, it is rendered in the header. Handles HTML5 validation.
+   If :bare is true, returns only the <form>...</form> for modal AJAX."
+  ([href fields buttons] (form href fields buttons nil))
+  ([href fields buttons title] (form href fields buttons title nil))
+  ([href fields buttons title opts]
+   (let [bare (:bare opts)]
+     (if bare
+       ;; Only the <form> for modal AJAX
        [:form {:method "POST"
                :enctype "multipart/form-data"
                :action href
@@ -446,18 +414,39 @@
            (sequential? buttons)
            (doall buttons)
            :else
-           buttons)]]]]])))
+           buttons)]]
+       ;; Full card for standalone page
+       (list
+        [:div.d-flex.justify-content-center.align-items-center.w-100
+         {:style "min-height: 45vh;"}
+         [:div.card.shadow-lg.w-100
+          {:style "max-width: 540px;"}
+          (when title
+            [:div.card-header
+             [:h4.mb-0.fw-bold.text-center title]])
+          [:div.card-body.p-4
+           [:form {:method "POST"
+                   :enctype "multipart/form-data"
+                   :action href
+                   :class "needs-validation"
+                   :novalidate true}
+            (anti-forgery-field)
+            fields
+            [:div.d-flex.gap-2.justify-content-end.mt-4
+             (cond
+               (and (sequential? buttons) (not (vector? (first buttons))))
+               (doall buttons)
+               (sequential? buttons)
+               (doall buttons)
+               :else
+               buttons)]]]]])))))
 
 ;; =============================================================================
 ;; Usage Examples (Documentation)
 ;; =============================================================================
 
 (comment
-  ;; =========================
   ;; Example usage for testing
-  ;; =========================
-
-  ;; build-field: All HTML5 field types and attributes
   (build-field {:type "hidden" :id "user-id" :name "user-id" :value "42"})
   (build-field {:label "Full Name" :type "text" :id "name" :name "name" :placeholder "Enter name" :required true :maxlength 50 :pattern "[A-Za-z ]+" :autocomplete "name" :autofocus true})
   (build-field {:label "Email" :type "email" :id "email" :name "email" :placeholder "Enter email" :required true :autocomplete "email"})

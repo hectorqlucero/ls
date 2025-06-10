@@ -2,7 +2,7 @@
   (:require
    [clj-time.core :as t]
    [clojure.string :as str]
-   [hiccup.page :refer [html5 include-css include-js]]
+   [hiccup.page :refer [html5]]
    [{{name}}.models.crud :refer [config]]
    [{{name}}.models.util :refer [user-level user-name]]
    [{{name}}.menu :refer [menu-config]]))
@@ -19,69 +19,25 @@
         data-id (generate-data-id href)
         is-active (= uri href)]
     [:li.nav-item
-     [:a.nav-link.px-3.fw-500 {:href href
-                               :data-id data-id
-                               :class (when is-active "active")
-                               :aria-current (when is-active "page")
-                               :onclick "localStorage.setItem('active-link', this.dataset.id)"
-                               :style "transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-                                      margin: 0 2px; 
-                                      border-radius: 8px; 
-                                      position: relative;
-                                      color: #4a5568;
-                                      font-weight: 500;
-                                      font-size: 0.95rem;
-                                      padding: 0.75rem 1rem !important;
-                                      text-decoration: none;
-                                      background: linear-gradient(135deg, transparent 0%, transparent 100%);
-                                      border: 1px solid transparent;"
-                               :onmouseover "this.style.background='linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'; 
-                                           this.style.color='#2d3748'; 
-                                           this.style.borderColor='#e2e8f0'; 
-                                           this.style.transform='translateY(-1px)'; 
-                                           this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
-                               :onmouseout (if is-active
-                                             "this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; 
-                                             this.style.color='white'; 
-                                             this.style.borderColor='#667eea'; 
-                                             this.style.transform='none'; 
-                                             this.style.boxShadow='0 2px 8px rgba(102,126,234,0.3)';"
-                                             "this.style.background='transparent'; 
-                                             this.style.color='#4a5568'; 
-                                             this.style.borderColor='transparent'; 
-                                             this.style.transform='none'; 
-                                             this.style.boxShadow='none';")}
+     [:a.nav-link.fw-semibold.px-3.py-2.rounded.transition
+      {:href href
+       :data-id data-id
+       :class (str (when is-active "active bg-gradient text-primary-emphasis shadow-sm"))
+       :aria-current (when is-active "page")
+       :onclick "localStorage.setItem('active-link', this.dataset.id)"}
       label]]))
 
 (defn build-dropdown-link [request href label]
   (let [uri (:uri request)
         is-active (= uri href)]
-    [:li [:a.dropdown-item.mx-1.px-3 {:href href
-                                      :class (when is-active "active")
-                                      :aria-current (when is-active "page")
-                                      :data-id (generate-data-id href)
-                                      :onclick "localStorage.setItem('active-link', this.dataset.id)"
-                                      :style "transition: all 0.3s ease; 
-                                             margin: 2px 0; 
-                                             border-radius: 6px; 
-                                             padding: 0.65rem 1rem;
-                                             color: #4a5568;
-                                             font-weight: 500;
-                                             font-size: 0.9rem;
-                                             text-decoration: none;
-                                             background: transparent;
-                                             border: none;"
-                                      :onmouseover "this.style.background='linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)'; 
-                                                   this.style.color='#2d3748'; 
-                                                   this.style.transform='translateX(4px)';"
-                                      :onmouseout (if is-active
-                                                    "this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; 
-                                                    this.style.color='white'; 
-                                                    this.style.transform='translateX(4px)';"
-                                                    "this.style.background='transparent'; 
-                                                    this.style.color='#4a5568'; 
-                                                    this.style.transform='none';")}
-          label]]))
+    [:li
+     [:a.dropdown-item.fw-semibold
+      {:href href
+       :class (when is-active "active bg-primary-subtle text-primary-emphasis")
+       :aria-current (when is-active "page")
+       :data-id (generate-data-id href)
+       :onclick "localStorage.setItem('active-link', this.dataset.id)"}
+      label]]))
 
 (defn build-menu [request items]
   (when (some #{(user-level request)} ["A" "S" "U"])
@@ -94,45 +50,17 @@
 (defn build-dropdown [request dropdown-id data-id label items]
   (when (some #{(user-level request)} ["A" "S" "U"])
     [:li.nav-item.dropdown
-     [:a.nav-link.dropdown-toggle.px-3.fw-500
+     [:a.nav-link.dropdown-toggle.fw-semibold.px-3.py-2.rounded.transition
       {:href "#"
        :id dropdown-id
        :data-id data-id
        :onclick "localStorage.setItem('active-link', this.dataset.id)"
        :role "button"
        :data-bs-toggle "dropdown"
-       :aria-expanded "false"
-       :style "transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-              margin: 0 2px; 
-              border-radius: 8px; 
-              color: #4a5568;
-              font-weight: 500;
-              font-size: 0.95rem;
-              padding: 0.75rem 1rem !important;
-              text-decoration: none;
-              background: linear-gradient(135deg, transparent 0%, transparent 100%);
-              border: 1px solid transparent;"
-       :onmouseover "this.style.background='linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'; 
-                    this.style.color='#2d3748'; 
-                    this.style.borderColor='#e2e8f0'; 
-                    this.style.transform='translateY(-1px)'; 
-                    this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
-       :onmouseout "this.style.background='transparent'; 
-                   this.style.color='#4a5568'; 
-                   this.style.borderColor='transparent'; 
-                   this.style.transform='none'; 
-                   this.style.boxShadow='none';"}
+       :aria-expanded "false"}
       label]
-     [:ul.dropdown-menu.shadow.border-0.rounded.mt-2 {:aria-labelledby dropdown-id
-                                                      :style "background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-                                                             border: 1px solid #e2e8f0 !important;
-                                                             box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
-                                                             border-radius: 12px !important;
-                                                             padding: 0.5rem;
-                                                             min-width: 200px;
-                                                             backdrop-filter: blur(10px);
-                                                             max-height: calc(100vh - 120px);
-                                                             overflow-y: auto;"}
+     [:ul.dropdown-menu.shadow-lg.border-0.rounded.mt-2
+      {:aria-labelledby dropdown-id}
       (build-menu request items)]]))
 
 ;; HELPER FUNCTIONS
@@ -146,196 +74,93 @@
   (let [menu-items (map menu-item->map items)]
     (build-dropdown request id data-id label menu-items)))
 
-(defn navbar-structure [brand-content nav-content]
-  [:nav.navbar.navbar-expand-lg.navbar-light.fixed-top
-   {:style "background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-           border-bottom: 1px solid #e2e8f0;
-           box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-           backdrop-filter: blur(10px);
-           -webkit-backdrop-filter: blur(10px);
-           padding: 0.75rem 0;
-           z-index: 1030;"}
-   [:div.container-fluid
-    brand-content
-    [:button.navbar-toggler.border-0 {:type "button"
-                                      :data-bs-toggle "collapse"
-                                      :data-bs-target "#collapsibleNavbar"
-                                      :aria-controls "collapsibleNavbar"
-                                      :aria-expanded "false"
-                                      :aria-label "Toggle navigation"
-                                      :style "border-radius: 8px; 
-                                             padding: 0.5rem;
-                                             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-                                             transition: all 0.3s ease;"
-                                      :onmouseover "this.style.background='linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%)'; 
-                                                   this.style.transform='scale(1.05)';"
-                                      :onmouseout "this.style.background='linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%)'; 
-                                                  this.style.transform='scale(1)';"}
-     [:span.navbar-toggler-icon {:style "background-image: url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e\");"}]]
-    [:div#collapsibleNavbar.collapse.navbar-collapse nav-content]]])
-
 (defn brand-logo []
-  [:a.navbar-brand.fw-bold.fs-5 {:href "#"
-                                 :style "transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-                                        color: #2d3748;
-                                        text-decoration: none;
-                                        display: flex;
-                                        align-items: center;
-                                        font-weight: 700;
-                                        font-size: 1.25rem;"
-                                 :onmouseover "this.style.transform='scale(1.05)'; 
-                                              this.style.color='#4a5568';"
-                                 :onmouseout "this.style.transform='scale(1)'; 
-                                             this.style.color='#2d3748';"}
-   [:img.me-2 {:src "/images/logo.png"
-               :alt (:site-name config)
-               :style "width: 42px;
-                      height: 42px;
-                      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.15));
-                      border-radius: 8px;
-                      transition: all 0.3s ease;"}]
-   [:span.d-none.d-md-inline {:style "background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                     -webkit-background-clip: text;
-                                     -webkit-text-fill-color: transparent;
-                                     background-clip: text;
-                                     font-weight: 700;"}
-    (:site-name config)]])
+  [:a.navbar-brand.fw-bold.fs-4.d-flex.align-items-center.gap-2 {:href "/"}
+   [:img {:src "/images/logo.png"
+          :alt (:site-name config)
+          :style "width: 44px; height: 44px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.10);"}]
+   [:span.d-none.d-md-inline (:site-name config)]])
 
 (defn logout-button [request]
   [:li.nav-item.ms-3
-   [:a.btn.btn-sm.px-3
+   [:a.btn.btn-outline-danger.btn-sm.px-3.rounded-pill.fw-semibold
     {:href "/home/logoff"
-     :onclick "localStorage.removeItem('active-link')"
-     :style "transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            font-weight: 500; 
-            border-radius: 8px;
-            padding: 0.65rem 1.25rem;
-            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
-            border: 1px solid #e53e3e;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            font-size: 0.9rem;"
-     :onmouseover "this.style.background='linear-gradient(135deg, #c53030 0%, #9c2626 100%)'; 
-                  this.style.borderColor='#c53030'; 
-                  this.style.transform='translateY(-2px)'; 
-                  this.style.boxShadow='0 6px 16px rgba(197,48,48,0.4)';"
-     :onmouseout "this.style.background='linear-gradient(135deg, #e53e3e 0%, #c53030 100%)'; 
-                 this.style.borderColor='#e53e3e'; 
-                 this.style.transform='none'; 
-                 this.style.boxShadow='none';"}
-    [:i.bi.bi-box-arrow-right.me-1 {:style "font-size: 0.9rem;"}]
+     :onclick "localStorage.removeItem('active-link')"}
+    [:i.bi.bi-box-arrow-right.me-1]
     (str "Logout " (user-name request))]])
 
 ;; MENU FUNCTIONS
 (defn menus-private [request]
   (let [{:keys [nav-links dropdowns]} menu-config]
-    (navbar-structure
-     (brand-logo)
-     [:ul.navbar-nav.ms-auto.align-items-lg-center {:style "gap: 0.25rem;"}
-      (create-nav-links request nav-links)
-      (create-dropdown request (:reports dropdowns))
-      (create-dropdown request (:admin dropdowns))
-      (logout-button request)])))
+    [:nav.navbar.navbar-expand-lg.navbar-dark.bg-gradient.bg-primary.shadow-lg.fixed-top
+     [:div.container-fluid
+      (brand-logo)
+      [:button.navbar-toggler
+       {:type "button"
+        :data-bs-toggle "collapse"
+        :data-bs-target "#mainNavbar"
+        :aria-controls "mainNavbar"
+        :aria-expanded "false"
+        :aria-label "Toggle navigation"}
+       [:span.navbar-toggler-icon]]
+      [:div#mainNavbar.collapse.navbar-collapse
+       [:ul.navbar-nav.ms-auto.align-items-lg-center.gap-2
+        (create-nav-links request nav-links)
+        (create-dropdown request (:reports dropdowns))
+        (create-dropdown request (:admin dropdowns))
+        (logout-button request)]]]]))
 
 (defn menus-public []
-  (navbar-structure
-   (brand-logo)
-   [:ul.navbar-nav.ms-auto.align-items-lg-center
-    (build-link {} "/" "Home")
-    [:li.nav-item.ms-3
-     [:a.btn.btn-sm.px-3
-      {:href "/home/login"
-       :style "transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-              font-weight: 500; 
-              border-radius: 8px;
-              padding: 0.65rem 1.25rem;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              border: 1px solid #667eea;
-              color: white;
-              text-decoration: none;
-              display: flex;
-              align-items: center;
-              font-size: 0.9rem;"
-       :onmouseover "this.style.background='linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)'; 
-                    this.style.borderColor='#5a67d8'; 
-                    this.style.transform='translateY(-2px)'; 
-                    this.style.boxShadow='0 6px 16px rgba(102,126,234,0.4)';"
-       :onmouseout "this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; 
-                   this.style.borderColor='#667eea'; 
-                   this.style.transform='none'; 
-                   this.style.boxShadow='none';"}
-      [:i.bi.bi-box-arrow-in-right.me-1 {:style "font-size: 0.9rem;"}]
-      "Login"]]]))
+  [:nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow.fixed-top
+   [:div.container-fluid
+    (brand-logo)
+    [:button.navbar-toggler
+     {:type "button"
+      :data-bs-toggle "collapse"
+      :data-bs-target "#mainNavbar"
+      :aria-controls "mainNavbar"
+      :aria-expanded "false"
+      :aria-label "Toggle navigation"}
+     [:span.navbar-toggler-icon]]
+    [:div#mainNavbar.collapse.navbar-collapse
+     [:ul.navbar-nav.ms-auto.align-items-lg-center.gap-2
+      (build-link {} "/" "Home")
+      [:li.nav-item.ms-3
+       [:a.btn.btn-outline-primary.btn-sm.px-3.rounded-pill.fw-semibold
+        {:href "/home/login"}
+        [:i.bi.bi-box-arrow-in-right.me-1 {:style "font-size: 0.9rem;"}]
+        "Login"]]]]]])
 
 (defn menus-none []
-  (navbar-structure (brand-logo) nil))
+  [:nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow.fixed-top
+   [:div.container-fluid
+    (brand-logo)]])
 
-;; ASSETS
+;; ASSETS (CDN)
 (defn app-css []
   (list
-   (include-css "/bootstrap5/css/bootstrap.min.css")
-   (include-css "/bootstrap-icons/font/bootstrap-icons.css")
-   (include-css "/bootstrap-table-master/dist/bootstrap-table.min.css")
-   (include-css "/css/extra.css")
-   [:style
-    "@media (max-width: 576px) {
-      .dropdown-menu {
-        min-width: 96vw !important;
-        left: 2vw !important;
-        right: 2vw !important;
-        max-height: calc(100vh - 80px) !important;
-        padding: 0.25rem !important;
-      }
-    }"]))
+   [:link {:rel "stylesheet" :href "/vendor/bootstrap.min.css"}]
+   [:link {:rel "stylesheet" :href "/vendor/dataTables.bootstrap5.min.css"}]
+   [:link {:rel "stylesheet" :href "/vendor/buttons.bootstrap5.min.css"}]
+   [:link {:rel "stylesheet" :href "/vendor/jquery.dataTables.min.css"}]
+   [:link {:rel "stylesheet" :href "/vendor/buttons.dataTables.min.css"}]
+   [:link {:rel "stylesheet" :href "/vendor/bootstrap-icons.css"}]
+   [:link {:rel "stylesheet" :href "/vendor/app.css"}])) ; <-- your custom CSS
 
 (defn app-js []
   (list
-   (include-js "/js/jquery.min.js")
-   (include-js "/bootstrap5/js/bootstrap.bundle.min.js")
-   (include-js "/bootstrap-table-master/dist/extensions/export/tableExport.min.js")
-   (include-js "/bootstrap-table-master/dist/extensions/export/jspdf.umd.min.js")
-   (include-js "/bootstrap-table-master/dist/extensions/export/bootstrap-table.min.js")
-   (include-js "/bootstrap-table-master/dist/extensions/export/bootstrap-table-export.min.js")
-   (include-js "/bootstrap-table-master/dist/extensions/export/bootstrap-table-print.min.js")
-   (include-js "/bootstrap-table-master/dist/locale/bootstrap-table-en-US.min.js")
-   (include-js "/js/extra.js")
-   [:script
-    "document.addEventListener('DOMContentLoaded', function () {
-       var id = localStorage.getItem('active-link');
-       if (id) {
-         var el = document.querySelector('.navbar [data-id=\"' + id + '\"]');
-         if (el) {
-           el.classList.add('active');
-           el.setAttribute('aria-current', 'page');
-           el.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-           el.style.color = 'white';
-           el.style.borderColor = '#667eea';
-           el.style.boxShadow = '0 2px 8px rgba(102,126,234,0.3)';
-           
-           var dropdownItem = el.closest('.dropdown-item');
-           if (dropdownItem) {
-             dropdownItem.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-             dropdownItem.style.color = 'white';
-             dropdownItem.style.transform = 'translateX(4px)';
-             
-             var dropdown = el.closest('.dropdown');
-             if (dropdown) {
-               var dropdownToggle = dropdown.querySelector('.dropdown-toggle');
-               if (dropdownToggle) {
-                 dropdownToggle.classList.add('active');
-                 dropdownToggle.setAttribute('aria-current', 'page');
-                 dropdownToggle.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                 dropdownToggle.style.color = 'white';
-                 dropdownToggle.style.borderColor = '#667eea';
-                 dropdownToggle.style.boxShadow = '0 2px 8px rgba(102,126,234,0.3)';
-               }
-             }
-           }
-         }
-       }
-     });"]))
+   [:script {:src "/vendor/jquery-3.7.1.min.js"}]
+   [:script {:src "/vendor/bootstrap.bundle.min.js"}]
+   [:script {:src "/vendor/jquery.dataTables.min.js"}]
+   [:script {:src "/vendor/dataTables.bootstrap5.min.js"}]
+   [:script {:src "/vendor/buttons.dataTables.min.js"}]
+   [:script {:src "/vendor/buttons.bootstrap5.min.js"}]
+   [:script {:src "/vendor/jszip.min.js"}]
+   [:script {:src "/vendor/pdfmake.min.js"}]
+   [:script {:src "/vendor/vfs_fonts.js"}]
+   [:script {:src "/vendor/buttons.html5.min.js"}]
+   [:script {:src "/vendor/buttons.print.min.js"}]
+   [:script {:src "/vendor/app.js"}])) ; <-- your custom JS
 
 ;; LAYOUT FUNCTIONS
 (defn application [request title ok js & content]
@@ -347,41 +172,35 @@
           (app-css)
           [:link {:rel "shortcut icon" :type "image/x-icon" :href "data:image/x-icon;,"}]]
          [:body
-          [:div.container.flex-nowrap.overflow-auto.margin-top {:style "margin-top:75px;margin-bottom:25px;"}
+          [:div {:style "height: 70px;"}]
+          [:div.container-fluid.pt-3
+           {:style "min-height: 100vh; background: #f8fafc;"}
            (cond
              (= ok -1) (menus-none)
              (= ok 0) (menus-public)
              (> ok 0) (menus-private request))
-           [:div {:style "padding-left:14px;"} content]]
+           [:div.container-fluid.px-4
+            {:style "margin-top:32px; max-height:calc(100vh - 200px); overflow-y:auto; padding-bottom:80px;"}
+            (doall content)]]
+          [:div#exampleModal.modal.fade
+           {:tabindex "-1" :aria-labelledby "exampleModalLabel" :aria-hidden "true"}
+           [:div.modal-dialog
+            [:div.modal-content
+             [:div.modal-header.bg-primary.text-white
+              [:h5#exampleModalLabel.modal-title "Modal"]
+              [:button.btn-close {:type "button" :data-bs-dismiss "modal" :aria-label "Close"}]]
+             [:div.modal-body]]]]
           (app-js)
           js
-          [:footer.bg-light.text-center.fixed-bottom
+          [:footer.bg-light.text-center.fixed-bottom.py-2.shadow-sm
            [:span "Copyright © "
             (t/year (t/now)) " " (:company-name config) " - All Rights Reserved"]]]))
-(defn error-404 [content return-url]
-  (html5 {:ng-app (:site-name config) :lang "en-US"}
-         [:head
-          [:title "Message"]
-          [:meta {:charset "UTF-8"}]
-          [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-          (app-css)
-          [:link {:rel "shortcut icon" :type "image/x-icon" :href "data:image/x-icon;,"}]]
-         [:body
-          [:div.container.d-flex.justify-content-center.align-items-center
-           {:style "min-height: 70vh;"}
-           [:div.card.shadow-lg
-            {:style "width: 100%; max-width: 520px; border-radius: 16px; border: 1px solid #e2e8f0; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);"}
-            [:div.card-header.text-white.text-center
-             {:style "border-top-left-radius: 16px; border-top-right-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"}
-             [:h4.mb-0.fw-bold "Message"]]
-            [:div.card-body.p-4
-             [:div.text-center
-              [:h4.mb-3.fw-semibold (if (sequential? content) (doall content) content)]
-              [:a.btn.btn-primary.btn-lg.fw-semibold.shadow-sm.mt-3
-               {:href return-url
-                :style "border-radius: 8px; padding: 0.5rem 1.5rem; min-width: 120px; letter-spacing: 0.03em; font-size: 1rem; box-shadow: 0 2px 8px rgba(13,110,253,0.10); transition: all 0.2s cubic-bezier(0.4,0,0.2,1);"}
-               [:i.bi.bi-arrow-left.me-2] "Return to previous page"]]]]]
-          (app-js)
-          [:footer.bg-light.text-center.fixed-bottom
-           [:span "Copyright © "
-            (t/year (t/now)) " " (:company-name config) " - All Rights Reserved"]]]))
+
+(defn error-404
+  ([msg] (error-404 msg nil))
+  ([msg redirect-url]
+   [:div
+    [:h1 "Error 404"]
+    [:p msg]
+    (when redirect-url
+      [:a {:href redirect-url} "Go back"])]))

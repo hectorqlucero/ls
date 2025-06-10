@@ -7,9 +7,9 @@
   [table]
   (let [data (str
               "  (GET \"/admin/" table "\" params [] (" table "-controller/" table " params))\n"
-              "  (GET \"/admin/" table "/edit/:id\" [id :as request] (" table "-controller/" table "-edit request id))\n"
+              "  (GET \"/admin/" table "/add-form\" params [] (" table "-controller/" table "-add-form params))\n"
+              "  (GET \"/admin/" table "/edit-form/:id\" [id :as request] (" table "-controller/" table "-edit-form request id))\n"
               "  (POST \"/admin/" table "/save\" params [] (" table "-controller/" table "-save params))\n"
-              "  (GET \"/admin/" table "/add\" params [] (" table "-controller/" table "-add params))\n"
               "  (GET \"/admin/" table "/delete/:id\" [id :as request] (" table "-controller/" table "-delete request id))")]
     data))
 
@@ -87,6 +87,7 @@
                              [(build-defroutes-reporte table)]
                              "(defroutes proutes"))
 (comment
+  (process-grid "{{name}}")
   (build-defroutes-reporte "users")
   (build-reporte-require "users")
   (process-report "users")

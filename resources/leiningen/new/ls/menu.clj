@@ -8,7 +8,7 @@
 
 (def menu-config
   {:nav-links [["/" "Home"]
-               ["/users" "Dashboard"]]
+               ["/users" "Users"]]
    :dropdowns {:reports {:id "navdrop0"
                          :data-id "reports"
                          :label "Reports"

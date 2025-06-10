@@ -16,7 +16,7 @@
         js nil
         content (if (> ok 0)
                   (home-view)
-                  [:h2.text-info "Welcome to the Home Page"])]
+                  [:h2.text-info.text-center "Welcome to the Home Page"])]
     (application request title ok js content)))
 
 (defn login

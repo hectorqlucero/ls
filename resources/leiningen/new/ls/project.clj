@@ -39,9 +39,9 @@
   :aliases {"migrate" ["run" "-m" "{{name}}.migrations/migrate"]
             "rollback" ["run" "-m" "{{name}}.migrations/rollback"]
             "database" ["run" "-m" "{{name}}.models.cdb/database"]
-            "grid" ["run" "-m" "{{name}}.models.builder/build-grid"]
-            "dashboard" ["run" "-m" "{{name}}.models.builder/build-dashboard"]
-            "report" ["run" "-m" "{{name}}.models.builder/build-report"]}
+            "grid" ["run" "-m" "{{name}}.builder/build-grid"]
+            "dashboard" ["run" "-m" "{{name}}.builder/build-dashboard"]
+            "report" ["run" "-m" "{{name}}.builder/build-report"]}
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
              :dev {:source-paths ["src" "dev"]
