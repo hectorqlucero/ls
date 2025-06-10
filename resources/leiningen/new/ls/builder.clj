@@ -195,7 +195,11 @@
 
 (defn render-template [template m]
   (reduce (fn [s [k v]]
-            (str/replace s (re-pattern (str (if (= k :table) "_table_" (str "\\{\\{" (name k) "\\}\\}"))) v))
+            (str/replace s
+                         (re-pattern (if (= k :table)
+                                       "_table_"
+                                       (str "\\{\\{" (name k) "\\}\\}")))
+                         v))
           template
           m))
 
