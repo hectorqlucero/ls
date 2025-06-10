@@ -84,7 +84,6 @@
       ["src/{{sanitized}}/handlers/reports/users/view.clj" (render "reports-users-view.clj" data)]
 
       ;; Models
-      ["src/{{sanitized}}/models/builder.clj" (render "builder.clj" data)]
       ["src/{{sanitized}}/models/cdb.clj" (render "cdb.clj" data)]
       ["src/{{sanitized}}/models/crud.clj" (render "crud.clj" data)]
       ["src/{{sanitized}}/models/form.clj" (render "form.clj" data)]
@@ -102,6 +101,7 @@
       ["src/{{sanitized}}/menu.clj" (render "menu.clj" data)]
       ["src/{{sanitized}}/layout.clj" (render "layout.clj" data)]
       ["src/{{sanitized}}/migrations.clj" (render "migrations.clj" data)]
+      ["src/{{sanitized}}/builder.clj" (render "builder.clj" data)]
 
       ;; Test
       ["test/{{sanitized}}/core_test.clj" (render "core_test.clj" data)]
