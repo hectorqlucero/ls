@@ -7,172 +7,172 @@
 ;; --- GRID TEMPLATES (existing) ---
 
 (def controller-template
-  "(ns {{name}}.handlers.admin.{{table}}.controller
+  "(ns {{name}}.handlers.admin._table_.controller
   (:require
-   [{{name}}.handlers.admin.{{table}}.model :refer [get-{{table}} get-{{table}}-id]]
-   [{{name}}.handlers.admin.{{table}}.view :refer [{{table}}-view {{table}}-form-view]]
+   [{{name}}.handlers.admin._table_.model :refer [get-_table_ get-_table_-id]]
+   [{{name}}.handlers.admin._table_.view :refer [_table_-view _table_-form-view]]
    [{{name}}.layout :refer [application error-404]]
    [{{name}}.models.crud :refer [build-form-delete build-form-save]]
    [{{name}}.models.util :refer [get-session-id user-level]]
    [hiccup.core :refer [html]]))
 
-(defn {{table}}
+(defn _table_
   [request]
   (let [title \"{{TableTitle}}\"
         ok (get-session-id request)
         js nil
-        rows (get-{{table}})
-        content ({{table}}-view title rows)]
+        rows (get-_table_)
+        content (_table_-view title rows)]
     (if (= (user-level request) \"S\")
       (application request title ok js content)
       (application request title ok nil \"Not authorized to access this item! (level 'S')\"))))
 
-(defn {{table}}-add-form
+(defn _table_-add-form
   [_]
   (let [title \"New {{TableTitle}}\"
         row nil
-        content ({{table}}-form-view title row)]
+        content (_table_-form-view title row)]
     (html content)))
 
-(defn {{table}}-edit-form
+(defn _table_-edit-form
   [_ id]
   (let [title \"Edit {{TableTitle}}\"
-        row (get-{{table}}-id id)
-        content ({{table}}-form-view title row)]
+        row (get-_table_-id id)
+        content (_table_-form-view title row)]
     (html content)))
 
-(defn {{table}}-save
+(defn _table_-save
   [{params :params}]
-  (let [table \"{{table}}\"
+  (let [table \"_table_\"
         result (build-form-save params table)]
     (if result
       {:status 200 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":true}\"}
       {:status 500 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":false}\"})))
 
-(defn {{table}}-delete
+(defn _table_-delete
   [_ id]
-  (let [table \"{{table}}\"
+  (let [table \"_table_\"
         result (build-form-delete table id)]
     (if result
-      {:status 302 :headers {\"Location\" \"/admin/{{table}}\"}}
-      (error-404 \"Unable to process record!\" \"/admin/{{table}}\"))))
+      {:status 302 :headers {\"Location\" \"/admin/_table_\"}}
+      (error-404 \"Unable to process record!\" \"/admin/_table_\"))))
 ")
 
 (def view-template
-  "(ns {{name}}.handlers.admin.{{table}}.view
+  "(ns {{name}}.handlers.admin._table_.view
   (:require [{{name}}.models.form :refer [form build-field build-modal-buttons]]
             [{{name}}.models.grid :refer [build-grid]]))
 
-(defn {{table}}-view
+(defn _table_-view
   [title rows]
   (let [labels [{{labels}}]
         db-fields [{{dbfields}}]
         fields (apply array-map (interleave db-fields labels))
-        table-id \"{{table}}_table\"
-        href \"/admin/{{table}}\"
+        table-id \"_table__table\"
+        href \"/admin/_table_\"
         args {:new true :edit true :delete true}]
     (build-grid title rows table-id fields href args)))
 
-(defn build-{{table}}-fields
+(defn build-_table_-fields
   [row]
   (list
     (build-field {:id \"id\" :type \"hidden\" :name \"id\" :value (:id row)})
     {{fields}}
   ))
 
-(defn {{table}}-form-view
+(defn _table_-form-view
   [title row]
-  (form \"/admin/{{table}}/save\" (build-{{table}}-fields row) (build-modal-buttons) title {:bare true}))
+  (form \"/admin/_table_/save\" (build-_table_-fields row) (build-modal-buttons) title {:bare true}))
 ")
 
 (def model-template
-  "(ns {{name}}.handlers.admin.{{table}}.model
+  "(ns {{name}}.handlers.admin._table_.model
   (:require [{{name}}.models.crud :refer [Query db]]))
 
-(def get-{{table}}-sql
-  (str \"SELECT * FROM {{table}}\"))
+(def get-_table_-sql
+  (str \"SELECT * FROM _table_\"))
 
-(defn get-{{table}}
+(defn get-_table_
   []
-  (Query db get-{{table}}-sql))
+  (Query db get-_table_-sql))
 
-(defn get-{{table}}-id
+(defn get-_table_-id
   [id]
-  (first (Query db (str get-{{table}}-sql \" WHERE id=\" id))))
+  (first (Query db (str get-_table_-sql \" WHERE id=\" id))))
 ")
 
 ;; --- DASHBOARD TEMPLATES (new) ---
 
 (def controller-dashboard-template
-  "(ns {{name}}.handlers.{{table}}.controller
+  "(ns {{name}}.handlers._table_.controller
   (:require
-   [{{name}}.handlers.{{table}}.model :refer [get-{{table}}]]
-   [{{name}}.handlers.{{table}}.view :refer [{{table}}-view]]
+   [{{name}}.handlers._table_.model :refer [get-_table_]]
+   [{{name}}.handlers._table_.view :refer [_table_-view]]
    [{{name}}.layout :refer [application]]
    [{{name}}.models.util :refer [get-session-id]]))
 
-(defn {{table}}
+(defn _table_
   [request]
   (let [title \"{{TableTitle}}\"
         ok (get-session-id request)
         js nil
-        rows (get-{{table}})
-        content ({{table}}-view title rows)]
+        rows (get-_table_)
+        content (_table_-view title rows)]
     (application request title ok js content)))
 ")
 
 (def view-dashboard-template
-  "(ns {{name}}.handlers.{{table}}.view
+  "(ns {{name}}.handlers._table_.view
   (:require [{{name}}.models.grid :refer [build-dashboard]]))
 
-(defn {{table}}-view
+(defn _table_-view
   [title rows]
   (let [labels [{{labels}}]
         db-fields [{{dbfields}}]
         fields (apply array-map (interleave db-fields labels))
-        table-id \"{{table}}_table\"]
+        table-id \"_table__table\"]
     (build-dashboard title rows table-id fields)))
 ")
 
 (def model-dashboard-template
-  "(ns {{name}}.handlers.{{table}}.model
+  "(ns {{name}}.handlers._table_.model
   (:require [{{name}}.models.crud :refer [Query db]]))
 
-(def get-{{table}}-sql
-  (str \"SELECT * FROM {{table}}\"))
+(def get-_table_-sql
+  (str \"SELECT * FROM _table_\"))
 
-(defn get-{{table}}
+(defn get-_table_
   []
-  (Query db get-{{table}}-sql))
+  (Query db get-_table_-sql))
 ")
 
 ;; --- REPORT TEMPLATES (new) ---
 
 (def controller-report-template
-  "(ns {{name}}.handlers.reports.{{table}}.controller
+  "(ns {{name}}.handlers.reports._table_.controller
   (:require
-   [{{name}}.handlers.reports.{{table}}.model :refer [get-{{table}}]]
-   [{{name}}.handlers.reports.{{table}}.view :refer [{{table}}-view]]
+   [{{name}}.handlers.reports._table_.model :refer [get-_table_]]
+   [{{name}}.handlers.reports._table_.view :refer [_table_-view]]
    [{{name}}.layout :refer [application]]
    [{{name}}.models.util :refer [get-session-id]]))
 
-(defn {{table}}
+(defn _table_
   [params]
   (let [title \"{{TableTitle}} Report\"
         ok (get-session-id params)
         js nil
-        rows (get-{{table}})
-        content ({{table}}-view title rows)]
+        rows (get-_table_)
+        content (_table_-view title rows)]
     (application params title ok js content)))
 ")
 
 (def view-report-template
-  "(ns {{name}}.handlers.reports.{{table}}.view
+  "(ns {{name}}.handlers.reports._table_.view
   (:require [{{name}}.models.grid :refer [build-dashboard]]))
 
-(defn {{table}}-view
+(defn _table_-view
   [title rows]
-  (let [table-id \"{{table}}_table\"
+  (let [table-id \"_table__table\"
         labels []
         db-fields []
         fields (apply array-map (interleave db-fields labels))]
@@ -180,22 +180,22 @@
 ")
 
 (def model-report-template
-  "(ns {{name}}.handlers.reports.{{table}}.model
+  "(ns {{name}}.handlers.reports._table_.model
   (:require [{{name}}.models.crud :refer [db Query]]))
 
-(def get-{{table}}-sql
-  (str \"SELECT * FROM {{table}}\"))
+(def get-_table_-sql
+  (str \"SELECT * FROM _table_\"))
 
-(defn get-{{table}}
+(defn get-_table_
   []
-  (Query db get-{{table}}-sql))
+  (Query db get-_table_-sql))
 ")
 
 ;; --- TEMPLATE RENDERING ---
 
 (defn render-template [template m]
   (reduce (fn [s [k v]]
-            (str/replace s (re-pattern (str "\\{\\{" (name k) "\\}\\}")) v))
+            (str/replace s (re-pattern (str (if (= k :table) "_table_" (str "\\{\\{" (name k) "\\}\\}"))) v))
           template
           m))
 
