@@ -65,8 +65,8 @@
 
 (defn _table_-view
   [title rows]
-  (let [labels [{{labels}}]
-        db-fields [{{dbfields}}]
+  (let [labels [_labels_]
+        db-fields [_dbfields_]
         fields (apply array-map (interleave db-fields labels))
         table-id \"_table__table\"
         href \"/admin/_table_\"
@@ -77,7 +77,7 @@
   [row]
   (list
     (build-field {:id \"id\" :type \"hidden\" :name \"id\" :value (:id row)})
-    {{fields}}
+    _fields_
   ))
 
 (defn _table_-form-view
@@ -127,8 +127,8 @@
 
 (defn _table_-view
   [title rows]
-  (let [labels [{{labels}}]
-        db-fields [{{dbfields}}]
+  (let [labels [_labels_]
+        db-fields [_dbfields_]
         fields (apply array-map (interleave db-fields labels))
         table-id \"_table__table\"]
     (build-dashboard title rows table-id fields)))
@@ -195,11 +195,13 @@
 
 (defn render-template [template m]
   (reduce (fn [s [k v]]
-            (str/replace s
-                         (re-pattern (if (= k :table)
-                                       "_table_"
-                                       (str "\\{\\{" (name k) "\\}\\}")))
-                         v))
+            (let [pattern (case k
+                            :table "_table_"
+                            :labels "_labels_"
+                            :dbfields "_dbfields_"
+                            :fields "_fields_"
+                            (str "\\{\\{" (name k) "\\}\\}"))]
+              (str/replace s (re-pattern pattern) v)))
           template
           m))
 
