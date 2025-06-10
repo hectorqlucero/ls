@@ -18,7 +18,7 @@
 
 (defn _table_
   [request]
-  (let [title \"{{TableTitle}}\"
+  (let [title \"_TableTitle_\"
         ok (get-session-id request)
         js nil
         rows (get-_table_)
@@ -29,14 +29,14 @@
 
 (defn _table_-add-form
   [_]
-  (let [title \"New {{TableTitle}}\"
+  (let [title \"New _TableTitle_\"
         row nil
         content (_table_-form-view title row)]
     (html content)))
 
 (defn _table_-edit-form
   [_ id]
-  (let [title \"Edit {{TableTitle}}\"
+  (let [title \"Edit _TableTitle_\"
         row (get-_table_-id id)
         content (_table_-form-view title row)]
     (html content)))
@@ -113,7 +113,7 @@
 
 (defn _table_
   [request]
-  (let [title \"{{TableTitle}}\"
+  (let [title \"_TableTitle_\"
         ok (get-session-id request)
         js nil
         rows (get-_table_)
@@ -158,7 +158,7 @@
 
 (defn _table_
   [params]
-  (let [title \"{{TableTitle}} Report\"
+  (let [title \"_TableTitle_ Report\"
         ok (get-session-id params)
         js nil
         rows (get-_table_)
@@ -197,6 +197,7 @@
   (reduce (fn [s [k v]]
             (let [pattern (case k
                             :table "_table_"
+                            :TableTitle "_TableTitle_"
                             :labels "_labels_"
                             :dbfields "_dbfields_"
                             :fields "_fields_"
