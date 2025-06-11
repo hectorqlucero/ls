@@ -89,4 +89,49 @@ $(document).ready(function () {
       }
     }
   });
+
+  // Highlight nav-link and dropdown-toggle on click
+  $(document).on('click', '.nav-link', function (e) {
+    // Remove highlight from all nav links
+    document.querySelectorAll('.nav-link').forEach(function (el) {
+      el.classList.remove('active', 'bg-gradient', 'text-primary-emphasis', 'shadow-sm');
+    });
+
+    // Add highlight to the clicked nav-link or dropdown-toggle
+    this.classList.add('active', 'bg-gradient', 'text-primary-emphasis', 'shadow-sm');
+    localStorage.setItem('active-link', this.dataset.id);
+
+    if ($(this).hasClass('dropdown-item')) {
+      var parentToggle = $(this).closest('.dropdown').find('.dropdown-toggle')[0];
+      if (parentToggle) {
+        parentToggle.classList.add('active', 'bg-gradient', 'text-primary-emphasis', 'shadow-sm');
+        localStorage.setItem('active-dropdown-parent', parentToggle.dataset.id);
+      }
+    } else if ($(this).hasClass('dropdown-toggle')) {
+      // If clicking the dropdown parent itself, store as both active-link and active-dropdown-parent
+      localStorage.setItem('active-dropdown-parent', this.dataset.id);
+    } else {
+      // If not a dropdown item or toggle, clear the dropdown parent highlight
+      localStorage.removeItem('active-dropdown-parent');
+    }
+  });
+
+  // Restore highlight from localStorage on page load
+  var activeId = localStorage.getItem('active-link');
+  var activeDropdownParent = localStorage.getItem('active-dropdown-parent');
+  document.querySelectorAll('.nav-link').forEach(function (el) {
+    el.classList.remove('active', 'bg-gradient', 'text-primary-emphasis', 'shadow-sm');
+  });
+  if (activeId) {
+    var navLink = document.querySelector('.nav-link[data-id="' + activeId + '"]');
+    if (navLink) {
+      navLink.classList.add('active', 'bg-gradient', 'text-primary-emphasis', 'shadow-sm');
+    }
+  }
+  if (activeDropdownParent) {
+    var parentToggle = document.querySelector('.nav-link.dropdown-toggle[data-id="' + activeDropdownParent + '"]');
+    if (parentToggle) {
+      parentToggle.classList.add('active', 'bg-gradient', 'text-primary-emphasis', 'shadow-sm');
+    }
+  }
 });
