@@ -98,7 +98,7 @@
 
 (defn get-_table_-id
   [id]
-  (first (Query db (str get-_table_-sql \" WHERE id=\" id))))
+  (first (Query db (str get-_table_-sql \" WHERE _table_.id=\" id))))
 ")
 
 ;; --- DASHBOARD TEMPLATES (new) ---
