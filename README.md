@@ -1,32 +1,53 @@
 # ls
 
-A Leiningen template for Lucero Systems web applications.
+A Professional Leiningen Template for Lucero Systems Web Applications
 
 ---
 
 ## Overview
 
-**ls** is a [Leiningen](https://leiningen.org/) project template designed to rapidly scaffold Clojure web applications following Lucero Systems conventions. It provides code generators for CRUD grids, dashboards, and reports, using a consistent handler/view/model structure and Hiccup for HTML rendering.
+**ls** is a [Leiningen](https://leiningen.org/) project template designed to rapidly scaffold robust Clojure web applications following Lucero Systems conventions. It provides code generators for CRUD grids, dashboards, and reports, using a consistent handler/view/model structure and Hiccup for HTML rendering.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Project scaffolding**: Quickly create a new web app with `lein new ls your-project-name`.
-- **Code generators**: Generate CRUD grids, dashboards, and reports for any database table.
-- **Template-based**: Uses customizable Clojure string templates for handlers, views, and models.
-- **Database integration**: Auto-generates fields from your database schema.
-- **Separation of concerns**: Follows a clear handler/view/model directory structure.
-- **Hiccup integration**: Uses Hiccup for HTML generation.
-- **Extensible**: Easily add new templates or customize existing ones.
+- **Rapid Project Scaffolding**: Instantly create a new web app with `lein new ls your-project-name`.
+- **Powerful Code Generators**: Generate CRUD grids, dashboards, and reports for any database table.
+- **Customizable Templates**: Easily adapt Clojure string templates for handlers, views, and models.
+- **Automatic Database Integration**: Auto-generates fields from your database schema.
+- **Separation of Concerns**: Enforces a clear handler/view/model directory structure.
+- **Hiccup for HTML**: Leverages Hiccup for safe, idiomatic HTML generation.
+- **Highly Extensible**: Effortlessly add or modify templates to suit your needs.
 
 ---
 
-## Requirements
+## ⚙️ Requirements
 
-- **Clojure**: Version 1.10 or higher
-- **Java**: Version 17.x.x or higher
-- **Leiningen**: Version 2.9.0 or higher
+- **Clojure**: 1.10 or higher
+- **Java**: 17.x.x or higher
+- **Leiningen**: 2.9.0 or higher
+
+---
+
+## 🛠️ Installing the Template Locally
+
+To use this template on your computer:
+
+1. **Clone the repository:**
+   ```sh
+   git clone <your-repo-url>
+   cd ls
+   ```
+
+2. **Build and install the template into your local Maven repository:**
+   ```sh
+   lein clean
+   lein deps
+   lein install
+   ```
+
+   You can now use `ls` as a template for new projects on your machine.
 
 ---
 
@@ -42,7 +63,7 @@ cd myapp
 ### 2. Configure the Project
 
 - Edit [`project.clj`](project.clj) and replace all `Change me` and `xxxxx` placeholders with your actual project configuration.
-- Edit [`resources/private/config.clj`](resources/private/config.clj) and update the database connection settings and any other relevant configuration values as needed.
+- Edit [`resources/private/config.clj`](resources/private/config.clj) and update the database connection settings and any other relevant configuration values.
 
 **Example database config in `resources/private/config.clj`:**
 
@@ -54,32 +75,24 @@ cd myapp
       :password    "mypassword"}}
 ```
 
----
-
 ### 3. Create Your Database
 
-Use your preferred MySQL client to create a new database for your project.
+Use your preferred MySQL client to create a new database:
 
 ```sql
 CREATE DATABASE mydb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
-
----
 
 ### 4. Start the REPL in VS Code
 
 - Open the project folder in [VS Code](https://code.visualstudio.com/).
 - Use the [Calva](https://marketplace.visualstudio.com/items?itemName=betterthantomorrow.calva) extension to jack-in and connect to your REPL.
 
----
-
 ### 5. Run the Development Server
 
 ```sh
 lein with-profile dev run
 ```
-
----
 
 ### 6. Run Database Migrations and Seed Users
 
@@ -95,8 +108,6 @@ lein database     # Seeds default users (user, admin, system)
 | user@example.com     | user     |
 | admin@example.com    | admin    |
 | system@example.com   | system   |
-
----
 
 ### 7. Open Your App
 
@@ -117,14 +128,14 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🗂️ Project Structure
 
-| Feature         | Location                                         | Description                  |
-|-----------------|--------------------------------------------------|------------------------------|
-| Grids           | [`src/myapp/handlers/admin/`](src/myapp/handlers/admin/)         | CRUD grids                   |
-| Dashboards      | [`src/myapp/handlers/`](src/myapp/handlers/)                    | Dashboards                   |
-| Reports         | [`src/myapp/handlers/reports/`](src/myapp/handlers/reports/)     | Reports                      |
-| Private routes  | [`src/myapp/routes/proutes.clj`](src/myapp/routes/proutes.clj)   | Authenticated routes         |
-| Public routes   | [`src/myapp/routes/routes.clj`](src/myapp/routes/routes.clj)     | Publicly accessible routes   |
-| Menu (Navbar)   | [`src/myapp/layout.clj`](src/myapp/layout.clj)                   | Bootstrap 5 navigation bar   |
+| Feature         | Location                                              | Description                    |
+|-----------------|------------------------------------------------------|--------------------------------|
+| Grids           | [`src/myapp/handlers/admin/`](src/myapp/handlers/admin/)         | CRUD grids                     |
+| Dashboards      | [`src/myapp/handlers/`](src/myapp/handlers/)                      | Dashboards                     |
+| Reports         | [`src/myapp/handlers/reports/`](src/myapp/handlers/reports/)      | Reports                        |
+| Private routes  | [`src/myapp/routes/proutes.clj`](src/myapp/routes/proutes.clj)    | Authenticated routes           |
+| Public routes   | [`src/myapp/routes/routes.clj`](src/myapp/routes/routes.clj)      | Publicly accessible routes     |
+| Menu (Navbar)   | [`src/myapp/menu.clj`](src/myapp/menu.clj)                        | Bootstrap 5 navigation bar     |
 
 Each grid, dashboard, and report contains:
 - `controller.clj`
@@ -133,10 +144,10 @@ Each grid, dashboard, and report contains:
 
 ---
 
-## 📦 Requirements
+## 📦 Development Environment
 
-- Java SDK
-- MySQL (configured with a password)
+- **Java SDK**
+- **MySQL** (configured with a password)
 - [Leiningen](https://leiningen.org)
 - [VS Code](https://code.visualstudio.com/) with [Calva: Clojure & ClojureScript](https://marketplace.visualstudio.com/items?itemName=betterthantomorrow.calva) extension
 
@@ -145,7 +156,7 @@ Each grid, dashboard, and report contains:
 ## 💡 Tips
 
 - All code generation and migrations are managed via Leiningen commands.
-- The Bootstrap 5 navbar is fully customizable in [`src/myapp/layout.clj`](src/myapp/layout.clj).
+- The Bootstrap 5 navbar is fully customizable in [`src/myapp/menu.clj`](src/myapp/menu.clj).
 - Migrations are stored in [`resources/migrations/`](resources/migrations/).
 
 ---
@@ -160,4 +171,11 @@ lein report monthly-summary
 
 ---
 
-For more details, see the inline comments in each source file or open an issue if you need help!
+## 📚 Further Reading & Support
+
+- Inline comments are provided in each source file for guidance.
+- For questions, feature requests, or contributions, please open an issue or pull request on the project repository.
+
+---
+
+&copy; Lucero Systems. All rights reserved.
