@@ -185,15 +185,227 @@ lein report monthlySummary
 
 ---
 
-## 📚 Further Reading & Support
+## 📖 API Documentation: ls Leiningen Template
 
-- Inline comments are provided in each source file for guidance.
-- For questions, feature requests, or contributions, please open an issue or pull request on the [GitHub repository](https://github.com/your-org/ls).
+This document provides an overview of the main namespaces, functions, and code generation APIs available in the **ls** Leiningen template for Lucero Systems web applications.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Namespace Structure](#namespace-structure)
+- [Key Namespaces & Responsibilities](#key-namespaces--responsibilities)
+- [Core API Functions](#core-api-functions)
+- [Code Generation Commands](#code-generation-commands)
+- [Configuration](#configuration)
+- [Extending the Template](#extending-the-template)
+- [Further Reading](#further-reading)
+
+---
+
+## Overview
+
+The **ls** template generates a Clojure web application with a modular handler/view/model structure, automatic CRUD, dashboard, and report scaffolding, and seamless database integration. The generated code is idiomatic, extensible, and ready for production.
+
+---
+
+## Namespace Structure
+
+```
+src/
+└── myapp/
+    ├── handlers/
+    │   ├── admin/
+    │   │   └── <table>/
+    │   │       ├── controller.clj
+    │   │       ├── model.clj
+    │   │       └── view.clj
+    │   ├── reports/
+    │   │   └── <report>/
+    │   │       ├── controller.clj
+    │   │       ├── model.clj
+    │   │       └── view.clj
+    ├── models/
+    │   ├── crud.clj
+    │   └── ...
+    ├── routes/
+    │   ├── proutes.clj
+    │   └── routes.clj
+    ├── menu.clj
+    └── layout.clj
+resources/
+└── migrations/
+```
+
+---
+
+## Key Namespaces & Responsibilities
+
+- **handlers.admin.\<table\>.controller**  
+  RESTful endpoints for CRUD operations on a table.
+
+- **handlers.admin.\<table\>.model**  
+  Database access and business logic for the table.
+
+- **handlers.admin.\<table\>.view**  
+  Hiccup-based HTML rendering for the table's UI.
+
+- **handlers.reports.\<report\>.\***  
+  Controller, model, and view for custom reports.
+
+- **models.crud**  
+  Generic CRUD utilities, schema introspection, and helpers.
+
+- **menu**  
+  Bootstrap 5 navigation bar configuration.
+
+- **layout**  
+  Application-wide HTML layout and shared UI components.
+
+- **routes/routes.clj**  
+  Public routes.
+
+- **routes/proutes.clj**  
+  Authenticated/private routes.
+
+---
+
+## Core API Functions
+
+### Example: `handlers.admin.<table>.controller`
+
+```clojure
+(ns myapp.handlers.admin.users.controller
+  (:require
+    [myapp.handlers.admin.users.model :refer [get-users get-users-id]]
+    [myapp.handlers.admin.users.view :refer [users-view users-form-view]]
+    [myapp.layout :refer [application error-404]]
+    [myapp.models.crud :refer [build-form-delete build-form-save]]
+    [myapp.models.util :refer [get-session-id user-level]]
+    [hiccup.core :refer [html]]))
+
+(defn users
+  [request]
+  (let [title "Users"
+        ok (get-session-id request)
+        js nil
+        rows (get-users)
+        content (users-view title rows)]
+    (if (= (user-level request) "S")
+      (application request title ok js content)
+      (application request title ok nil "Not authorized to access this item! (level 'S')"))))
+
+(defn users-add-form
+  [_]
+  (let [title "New User"
+        row nil
+        content (users-form-view title row)]
+    (html content)))
+
+(defn users-edit-form
+  [_ id]
+  (let [title "Edit User"
+        row (get-users-id id)
+        content (users-form-view title row)]
+    (html content)))
+
+(defn users-save
+  [{params :params}]
+  (let [table "users"
+        result (build-form-save params table)]
+    (if result
+      {:status 200 :headers {"Content-Type" "application/json"} :body "{\"ok\":true}"}
+      {:status 500 :headers {"Content-Type" "application/json"} :body "{\"ok\":false}"}
+    )))
+```
+
+### Example: `models.crud`
+
+```clojure
+(ns myapp.models.crud)
+
+(defn get-table-columns
+  "Returns a vector of column names for the given table."
+  [table-name]
+  ;; Implementation depends on your DB library
+  )
+
+(defn build-form-save
+  "Handles saving a form submission for the given table."
+  [params table]
+  ;; Implementation
+  )
+
+(defn build-form-delete
+  "Handles deleting a record from the given table."
+  [table id]
+  ;; Implementation
+  )
+```
+
+---
+
+## Code Generation Commands
+
+The following Leiningen commands are available for code generation:
+
+- `lein grid <table>`  
+  Scaffold a full CRUD grid for an existing table.
+
+- `lein dashboard <table>`  
+  Scaffold a dashboard for an existing table.
+
+- `lein report <report>`  
+  Scaffold a report for a given name.
+
+- `lein migrate`  
+  Run all migrations in `resources/migrations/`.
+
+- `lein rollback`  
+  Roll back the last migration.
+
+- `lein database`  
+  Seed users and other records (see `src/myapp/models/cdb.clj`).
+
+---
+
+## Configuration
+
+- **Database**:  
+  Edit `resources/private/config.clj` to set your database connection parameters.
+
+- **Menu**:  
+  Configure your Bootstrap 5 navigation bar in `src/myapp/menu.clj`.
+
+- **Routes**:  
+  Add or modify routes in `src/myapp/routes/routes.clj` (public) and `src/myapp/routes/proutes.clj` (private).
+
+---
+
+## Extending the Template
+
+- **Custom Templates**:  
+  Edit `resources/leiningen/new/ls/builder.clj` to add or modify code generation templates.
+
+- **Add New Features**:  
+  Follow the handler/view/model pattern for new resources.
+
+- **UI Customization**:  
+  Modify `src/myapp/layout.clj` and `src/myapp/menu.clj` for branding and navigation.
+
+---
+
+## Further Reading
+
+- Inline comments are provided in each generated source file.
+- For advanced usage, see the [Leiningen documentation](https://leiningen.org/).
+- For questions or contributions, open an issue or pull request on the [GitHub repository](https://github.com/your-org/ls).
 
 ---
 
 &copy; Lucero Systems. All rights reserved.
 
 <!--
-SEO keywords: Clojure web template, Leiningen template, CRUD generator, Lucero Systems, Clojure web app, Hiccup, Bootstrap 5, VS Code Calva, Clojure project scaffolding, database integration, open source, enterprise Clojure, Clojure dashboard, Clojure report generator, Clojure CRUD, Clojure best practices
+SEO keywords: Clojure API documentation, Leiningen template API, CRUD generator API, Clojure web app API, Lucero Systems, handler/view/model, Clojure code generation, Clojure project structure, open source, enterprise Clojure, Clojure dashboard API, Clojure report API, Clojure CRUD API
 -->
