@@ -99,3 +99,12 @@ body>div[style*="max-width:900px"] {
     white-space: normal;
   }
 }
+
+/* Make DataTables length selector wide enough and fix icon overlap */
+.dataTables_length select.form-select {
+  width: auto;
+  min-width: 60px;
+  padding-right: 2rem;
+  /* space for dropdown arrow */
+  background-position: right 0.5rem center;
+}
