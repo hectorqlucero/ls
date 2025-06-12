@@ -171,7 +171,7 @@ Each grid, dashboard, and report contains:
 ```sh
 lein grid users
 lein dashboard sales
-lein report monthly-summary
+lein report monthlySummary
 ```
 
 ---
