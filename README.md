@@ -6,7 +6,7 @@ A Professional Leiningen Template for Lucero Systems Web Applications
 
 ## Overview
 
-**ls** is a [Leiningen](https://leiningen.org/) project template designed to rapidly scaffold robust Clojure web applications following Lucero Systems conventions. It provides code generators for CRUD grids, dashboards, and reports, using a consistent handler/view/model structure and Hiccup for HTML rendering.
+**ls** is a modern [Leiningen](https://leiningen.org/) project template for rapidly building robust, scalable, and maintainable Clojure web applications. Designed for productivity and best practices, it empowers developers to scaffold CRUD grids, dashboards, and reports in seconds, following Lucero Systems conventions. With a clear handler/view/model structure, Hiccup-based HTML, and seamless database integration, **ls** is the fastest way to launch your next Clojure web project.
 
 ---
 
@@ -19,6 +19,9 @@ A Professional Leiningen Template for Lucero Systems Web Applications
 - **Separation of Concerns**: Enforces a clear handler/view/model directory structure.
 - **Hiccup for HTML**: Leverages Hiccup for safe, idiomatic HTML generation.
 - **Highly Extensible**: Effortlessly add or modify templates to suit your needs.
+- **Bootstrap 5 Ready**: Modern, responsive UI out of the box.
+- **VS Code & Calva Friendly**: Optimized for a smooth developer experience.
+- **Open Source**: MIT/EPL licensed and ready for your contributions.
 
 ---
 
@@ -153,11 +156,13 @@ Each grid, dashboard, and report contains:
 
 ---
 
-## 💡 Tips
+## 💡 Tips & Best Practices
 
 - All code generation and migrations are managed via Leiningen commands.
 - The Bootstrap 5 navbar is fully customizable in [`src/myapp/menu.clj`](src/myapp/menu.clj).
 - Migrations are stored in [`resources/migrations/`](resources/migrations/).
+- Use the provided code generators to keep your codebase consistent and DRY.
+- Take advantage of Hiccup for safe, composable HTML rendering.
 
 ---
 
@@ -171,11 +176,24 @@ lein report monthly-summary
 
 ---
 
+## 🌐 Why Choose ls?
+
+- **SEO-Ready**: Clean, semantic HTML and best practices for discoverability.
+- **Enterprise-Grade**: Built for Lucero Systems, but flexible for any Clojure web project.
+- **Community-Driven**: Contributions welcome! Join the growing Clojure web community.
+- **Documentation & Support**: Inline comments, clear structure, and responsive maintainers.
+
+---
+
 ## 📚 Further Reading & Support
 
 - Inline comments are provided in each source file for guidance.
-- For questions, feature requests, or contributions, please open an issue or pull request on the project repository.
+- For questions, feature requests, or contributions, please open an issue or pull request on the [GitHub repository](https://github.com/your-org/ls).
 
 ---
 
 &copy; Lucero Systems. All rights reserved.
+
+<!--
+SEO keywords: Clojure web template, Leiningen template, CRUD generator, Lucero Systems, Clojure web app, Hiccup, Bootstrap 5, VS Code Calva, Clojure project scaffolding, database integration, open source, enterprise Clojure, Clojure dashboard, Clojure report generator, Clojure CRUD, Clojure best practices
+-->
