@@ -91,21 +91,28 @@
 
 (defn get-options
   "Returns a sequence of maps {:value <value-field> :label <label-fields-concatenated>} from the given table.
-   Optionally sorts by the given field(s).
+   Optionally sorts by the given field(s) and filters by field value.
    Example: (get-options \"users\" \"id\" [\"firstname\" \"lastname\"])
             (get-options \"users\" \"id\" \"firstname\")
             (get-options \"users\" \"id\" [\"firstname\" \"lastname\"] :sort-by \"lastname\")
-            (get-options \"users\" \"id\" [\"firstname\" \"lastname\"] :sort-by [\"lastname\" \"firstname\"])"
-  [table value-field label-fields & {:keys [sort-by]}]
+            (get-options \"users\" \"id\" [\"firstname\" \"lastname\"] :sort-by [\"lastname\" \"firstname\"])
+            (get-options \"users\" \"id\" [\"firstname\" \"lastname\"] :filter-field \"status\" :filter-value \"active\")"
+  [table value-field label-fields & {:keys [sort-by filter-field filter-value]}]
   (let [label-fields (if (sequential? label-fields) label-fields [label-fields])
         label-sql (st/join ",' ', " label-fields)
         sort-fields (cond
                       (nil? sort-by) nil
                       (sequential? sort-by) (st/join ", " sort-by)
                       :else sort-by)
+        where-clause (when (and filter-field filter-value)
+                       (str " WHERE " filter-field " = ?"))
         sql (str "SELECT " value-field " AS value, CONCAT(" label-sql ") AS label FROM " table
+                 where-clause
                  (when sort-fields (str " ORDER BY " sort-fields)))
-        results (Query db sql)]
+        sql-params (if (and filter-field filter-value)
+                     [sql filter-value]
+                     sql)
+        results (Query db sql-params)]
     (map #(select-keys % [:value :label]) results)))
 
 (defn not-empty-str
@@ -320,6 +327,8 @@
   ;; Options for select fields
   (get-options "users" "id" "firstname")
   (get-options "users" "id" ["firstname" "lastname"] :sort-by ["lastname" "firstname"])
+  (get-options "users" "id" ["firstname" "lastname"] :filter-field "status" :filter-value "active")
+  (get-options "employees" "id" "name" :filter-field "department" :filter-value "IT" :sort-by "name")
 
   ;; String and parsing helpers
   (not-empty-str "hello")
