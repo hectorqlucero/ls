@@ -213,23 +213,61 @@
       :else field)))
 
 (defn get-table-key
+  "Get single primary key field (backward compatibility)"
   [d]
   (when (seq d)
     (when-let [pk (first (filter #(= (:key %) "PRI") d))]
       (:field pk))))
 
+(defn get-table-primary-keys
+  "Get all primary key fields for a table"
+  [table]
+  (let [describe (get-table-describe table)]
+    (->> describe
+         (filter #(= (:key %) "PRI"))
+         (map :field)
+         vec)))
+
+(defn get-primary-key-map
+  "Extract primary key values from params based on table's primary keys"
+  [table params]
+  (let [pk-fields (get-table-primary-keys table)]
+    (into {}
+          (keep (fn [field]
+                  (when-let [value ((keyword field) params)]
+                    [(keyword field) value]))
+                pk-fields))))
+
+(defn build-pk-where-clause
+  "Build WHERE clause for primary key(s)"
+  [pk-map]
+  (when (seq pk-map)
+    (let [conditions (map (fn [[k _]] (str (name k) " = ?")) pk-map)
+          values (vals pk-map)]
+      [(str (clojure.string/join " AND " conditions)) values])))
+
 (defn build-form-row
-  "Builds form row"
-  [table id]
+  "Builds form row - supports both single and composite primary keys"
+  [table id-or-pk-map]
   (let [describe (get-table-describe table)
-        tid (get-table-key describe)]
-    (when tid
+        pk-fields (get-table-primary-keys table)]
+    (when (seq pk-fields)
       (let [head "SELECT "
             body (apply str (interpose #"," (map #(build-form-field %) describe)))
-            foot (str " FROM " table " WHERE " tid " = ?")
-            sql (str head body foot)
-            row (Query db [sql id])]
-        (first row)))))
+            ;; Handle both single ID and composite primary key cases
+            pk-map (cond
+                     ;; If id-or-pk-map is a map, use it directly
+                     (map? id-or-pk-map) id-or-pk-map
+                     ;; If single primary key and single value provided
+                     (= 1 (count pk-fields)) {(keyword (first pk-fields)) id-or-pk-map}
+                     ;; Otherwise, cannot determine primary key mapping
+                     :else nil)]
+        (when pk-map
+          (let [[where-clause values] (build-pk-where-clause pk-map)
+                foot (str " FROM " table " WHERE " where-clause)
+                sql (str head body foot)
+                row (Query db (into [sql] values))]
+            (first row)))))))
 
 (defn blank->nil
   [m]
@@ -245,16 +283,38 @@
     {}))
 
 (defn process-regular-form
-  "Standard form save ex. (build-for-save params 'eventos')"
+  "Standard form save - supports composite primary keys"
   [params table]
-  (let [id (crud-fix-id (:id params))
-        postvars (cond-> (-> (build-postvars table params)
-                             blank->nil)
-                   (= id 0) (dissoc :id))]
-    (if (and (map? postvars) (seq postvars))
-      (let [result (Save db (keyword table) postvars ["id = ?" id])]
-        (if (seq result) true false))
-      false)))
+  (let [pk-fields (get-table-primary-keys table)]
+    (if (= 1 (count pk-fields))
+      ;; Single primary key - use original logic for backward compatibility
+      (let [id (crud-fix-id (:id params))
+            postvars (cond-> (-> (build-postvars table params)
+                                 blank->nil)
+                       (= id 0) (dissoc :id))]
+        (if (and (map? postvars) (seq postvars))
+          (let [result (Save db (keyword table) postvars ["id = ?" id])]
+            (if (seq result) true false))
+          false))
+      ;; Composite primary key - use new logic
+      (let [pk-map (get-primary-key-map table params)
+            is-new-record? (or (empty? pk-map)
+                               (every? (fn [[_ v]]
+                                         (or (nil? v)
+                                             (and (string? v) (clojure.string/blank? v))
+                                             (and (number? v) (= v 0))
+                                             (= (str v) "0"))) pk-map))
+            postvars (cond-> (-> (build-postvars table params)
+                                 blank->nil)
+                       is-new-record? (apply dissoc (map keyword pk-fields)))]
+        (if (and (map? postvars) (seq postvars))
+          (let [where-clause (if is-new-record?
+                               ["1 = 0"]
+                               (let [[clause values] (build-pk-where-clause pk-map)]
+                                 (into [clause] values)))
+                result (Save db (keyword table) postvars where-clause)]
+            (if (seq result) true false))
+          false)))))
 
 (defn crud-upload-image
   "Uploads image and renames it to the id passed"
@@ -277,27 +337,71 @@
     image-name))
 
 (defn get-id
-  [id postvars table]
-  (if (= id 0)
-    (when (map? postvars)
-      (-> (Save db (keyword table) postvars ["id = ?" id])
-          first
-          :generated_key))
-    id))
+  "Get ID for insert operations - supports composite primary keys"
+  [pk-values-or-id postvars table]
+  (let [pk-fields (get-table-primary-keys table)]
+    (cond
+      ;; Single primary key case (backward compatibility)
+      (and (= 1 (count pk-fields)) (number? pk-values-or-id))
+      (if (= pk-values-or-id 0)
+        (when (map? postvars)
+          (-> (Save db (keyword table) postvars ["1 = 0"]) ; Force insert
+              first
+              :generated_key))
+        pk-values-or-id)
+
+      ;; Composite primary key case
+      (map? pk-values-or-id)
+      (let [is-new? (every? (fn [[_ v]] (or (nil? v) (= v 0)
+                                            (and (string? v) (clojure.string/blank? v))))
+                            pk-values-or-id)]
+        (if is-new?
+          (when (map? postvars)
+            ;; For composite keys, we might need to return the full key map
+            ;; This depends on your specific use case
+            (let [result (Save db (keyword table) postvars ["1 = 0"])]
+              (when (seq result)
+                ;; Return the generated key or the pk-values-or-id map
+                (or (:generated_key (first result)) pk-values-or-id))))
+          pk-values-or-id))
+
+      ;; Fallback for backward compatibility
+      :else pk-values-or-id)))
 
 (defn process-upload-form
+  "Process upload form - supports composite primary keys"
   [params table folder]
-  (let [id (crud-fix-id (:id params))
+  (let [pk-fields (get-table-primary-keys table)
+        pk-map (get-primary-key-map table params)
         file (:file params)
         postvars (dissoc (build-postvars table params) :file)
-        postvars (if (= id 0) (dissoc postvars :id) postvars)
+        is-new-record? (or (empty? pk-map)
+                           (every? (fn [[_ v]]
+                                     (or (nil? v)
+                                         (and (string? v) (clojure.string/blank? v))
+                                         (and (number? v) (= v 0))
+                                         (= (str v) "0"))) pk-map))
+        postvars (cond-> postvars
+                   is-new-record? (apply dissoc (map keyword pk-fields)))
         postvars (-> postvars blank->nil)]
     (if (and (map? postvars) (seq postvars))
-      (let [the-id (str (get-id id postvars table))
+      (let [;; For backward compatibility with single ID systems
+            the-id (if (= 1 (count pk-fields))
+                     (str (get-id (or ((keyword (first pk-fields)) pk-map) 0) postvars table))
+                     ;; For composite keys, we'll use a combination or the first key
+                     (str (or (some identity (vals pk-map))
+                              (get-id pk-map postvars table))))
             path (str (:uploads config) folder "/")
             image-name (crud-upload-image table file the-id path)
-            postvars (assoc postvars :imagen image-name :id the-id)
-            result (Save db (keyword table) postvars ["id = ?" the-id])]
+            ;; Add the image name and update primary key if needed
+            postvars (cond-> (assoc postvars :imagen image-name)
+                       (and (= 1 (count pk-fields)) the-id)
+                       (assoc (keyword (first pk-fields)) the-id))
+            where-clause (if is-new-record?
+                           ["1 = 0"] ; Force insert
+                           (let [[clause values] (build-pk-where-clause pk-map)]
+                             (into [clause] values)))
+            result (Save db (keyword table) postvars where-clause)]
         (if (seq result) true false))
       false)))
 
@@ -309,12 +413,69 @@
     (process-regular-form params table)))
 
 (defn build-form-delete
-  [table id]
-  (let [result (if (and (not (nil? id)) (not (clojure.string/blank? (str id))))
-                 (Delete db (keyword table) ["id = ?" id])
-                 nil)]
-    (if (seq result) true false)))
+  "Delete record - supports composite primary keys"
+  [table id-or-pk-map]
+  (let [pk-fields (get-table-primary-keys table)]
+    (when (seq pk-fields)
+      (let [pk-map (cond
+                     ;; If id-or-pk-map is a map, use it directly
+                     (map? id-or-pk-map) id-or-pk-map
+                     ;; If single primary key and single value provided
+                     (= 1 (count pk-fields)) {(keyword (first pk-fields)) id-or-pk-map}
+                     ;; Otherwise, cannot determine primary key mapping
+                     :else nil)]
+        (when (and pk-map (every? (fn [[_ v]] (not (or (nil? v)
+                                                       (and (string? v) (clojure.string/blank? v)))))
+                                  pk-map))
+          (let [[where-clause values] (build-pk-where-clause pk-map)
+                result (Delete db (keyword table) (into [where-clause] values))]
+            (if (seq result) true false)))))))
 
+;; Utility functions for composite primary key support
+
+(defn has-composite-primary-key?
+  "Check if table has composite (multi-column) primary key"
+  [table]
+  (> (count (get-table-primary-keys table)) 1))
+
+(defn validate-primary-key-params
+  "Validate that all primary key fields are provided in params"
+  [table params]
+  (let [pk-fields (get-table-primary-keys table)
+        pk-map (get-primary-key-map table params)]
+    (= (count pk-fields) (count pk-map))))
+
+(defn build-pk-string
+  "Build a string representation of primary key values (useful for file naming, etc.)"
+  [pk-map]
+  (when (seq pk-map)
+    (clojure.string/join "_" (map (fn [[k v]] (str (name k) "-" v)) pk-map))))
 
 (comment
-  (Query db "select * from users"))
+  ;; Examples of using the enhanced CRUD functions
+
+  ;; Traditional single primary key usage (backward compatible)
+  (Query db "select * from users")
+  (build-form-row "users" 123)
+  (build-form-delete "users" 123)
+
+  ;; Composite primary key usage
+  ;; For a table with composite primary key (user_id, role_id)
+  (get-table-primary-keys "user_roles")
+  ; => ["user_id" "role_id"]
+
+  (build-form-row "user_roles" {:user_id 123 :role_id 456})
+  (build-form-delete "user_roles" {:user_id 123 :role_id 456})
+
+  ;; Check if table has composite primary key
+  (has-composite-primary-key? "user_roles")
+  ; => true (if it has multiple primary key columns)
+
+  ;; Validate primary key parameters
+  (validate-primary-key-params "user_roles" {:user_id 123 :role_id 456 :other_field "value"})
+  ; => true (all primary key fields provided)
+
+  ;; Build primary key string representation
+  (build-pk-string {:user_id 123 :role_id 456})
+  ; => "user_id-123_role_id-456")
+  )

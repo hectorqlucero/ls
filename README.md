@@ -13,7 +13,7 @@ A Professional Leiningen Template for Lucero Systems Web Applications
 ## ✨ Features
 
 - **Rapid Project Scaffolding**: Instantly create a new web app with `lein new ls your-project-name`.
-- **Powerful Code Generators**: Generate CRUD grids, dashboards, and reports for any database table.
+- **Powerful Code Generators**: Generate CRUD grids, dashboards, reports, and subgrids for any database table.
 - **Customizable Templates**: Easily adapt Clojure string templates for handlers, views, and models.
 - **Automatic Database Integration**: Auto-generates fields from your database schema.
 - **Separation of Concerns**: Enforces a clear handler/view/model directory structure.
@@ -126,6 +126,7 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 - `lein grid <table>` &mdash; Scaffold a full CRUD grid for an existing table
 - `lein dashboard <table>` &mdash; Scaffold a dashboard for an existing table
 - `lein report <report>` &mdash; Scaffold a report for a given name
+- `lein subgrid <table> <parent-table> <parent-key>` &mdash; Scaffold a subgrid (child table) linked to a parent table
 
 ---
 
@@ -134,13 +135,14 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 | Feature         | Location                                              | Description                    |
 |-----------------|------------------------------------------------------|--------------------------------|
 | Grids           | [`src/myapp/handlers/admin/`](src/myapp/handlers/admin/)         | CRUD grids                     |
+| Subgrids        | [`src/myapp/handlers/admin/`](src/myapp/handlers/admin/)         | Child tables linked to parent grids |
 | Dashboards      | [`src/myapp/handlers/`](src/myapp/handlers/)                      | Dashboards                     |
 | Reports         | [`src/myapp/handlers/reports/`](src/myapp/handlers/reports/)      | Reports                        |
 | Private routes  | [`src/myapp/routes/proutes.clj`](src/myapp/routes/proutes.clj)    | Authenticated routes           |
 | Public routes   | [`src/myapp/routes/routes.clj`](src/myapp/routes/routes.clj)      | Publicly accessible routes     |
 | Menu (Navbar)   | [`src/myapp/menu.clj`](src/myapp/menu.clj)                        | Bootstrap 5 navigation bar     |
 
-Each grid, dashboard, and report contains:
+Each grid, subgrid, dashboard, and report contains:
 - `controller.clj`
 - `model.clj`
 - `view.clj`
@@ -163,16 +165,137 @@ Each grid, dashboard, and report contains:
 - Migrations are stored in [`resources/migrations/`](resources/migrations/).
 - Use the provided code generators to keep your codebase consistent and DRY.
 - Take advantage of Hiccup for safe, composable HTML rendering.
+- **Subgrids**: Use subgrids to create master-detail relationships between tables. For example, a `users` table with a `user_contacts` subgrid.
 
 ---
 
 ## 📝 Example Usage
 
 ```sh
+# Generate a standard CRUD grid
 lein grid users
+
+# Generate a dashboard
 lein dashboard sales
+
+# Generate a report
 lein report monthlySummary
+
+# Generate a subgrid for user contacts linked to users table
+lein subgrid user_contacts users user_id "Contact Name:contact_name" "Email:email"
+
+# Auto-generate subgrid fields from database schema
+lein subgrid user_contacts users user_id
 ```
+
+---
+
+## 🔗 Working with Subgrids
+
+Subgrids allow you to create master-detail relationships between tables, where one table (child/subgrid) is linked to another table (parent) via a foreign key. This is useful for scenarios like:
+
+- Users and their contact information
+- Orders and order items
+- Companies and their employees
+- Categories and products
+
+### Creating a Subgrid
+
+**Syntax:**
+```sh
+lein subgrid <child-table> <parent-table> <foreign-key> [field-specifications...]
+```
+
+**Parameters:**
+- `<child-table>`: The name of the child table (subgrid)
+- `<parent-table>`: The name of the parent table
+- `<foreign-key>`: The foreign key column in the child table that references the parent
+- `[field-specifications...]`: Optional field specifications in the format `"Label:field_name"`
+
+**Examples:**
+
+1. **Auto-generate fields from database schema:**
+   ```sh
+   lein subgrid user_contacts users user_id
+   ```
+   This will automatically detect all columns in `user_contacts` table (except `id` and `user_id`) and create appropriate labels.
+
+2. **Specify custom fields:**
+   ```sh
+   lein subgrid user_contacts users user_id "Contact Name:contact_name" "Email:email" "Phone:phone_number"
+   ```
+
+3. **Complex example with user roles:**
+   ```sh
+   lein subgrid user_roles users user_id "Role Name:role_name" "Permissions:permissions" "Active:is_active"
+   ```
+
+### What Gets Generated
+
+When you create a subgrid, the following files are generated:
+
+1. **Controller** (`src/myapp/handlers/admin/<table>/controller.clj`)
+   - RESTful endpoints for CRUD operations
+   - Parent-aware filtering (shows only records belonging to the parent)
+   - Automatic foreign key handling
+
+2. **Model** (`src/myapp/handlers/admin/<table>/model.clj`)
+   - Database queries filtered by parent relationship
+   - Foreign key constraint handling
+
+3. **View** (`src/myapp/handlers/admin/<table>/view.clj`)
+   - Bootstrap 5 modal-based interface
+   - Embedded within parent grid
+   - DataTables integration with filtering
+
+4. **Routes** (automatically added to `src/myapp/routes/proutes.clj`)
+   - GET, POST, PUT, DELETE routes for the subgrid
+   - Parent-aware routing
+
+### Database Requirements
+
+For subgrids to work properly, ensure your database tables have:
+
+1. **Primary keys**: Both parent and child tables should have primary key columns (typically `id`)
+2. **Foreign key**: Child table must have a foreign key column referencing the parent table
+3. **Proper naming**: Foreign key should follow the convention `<parent_table>_id` (e.g., `user_id` for users table)
+
+**Example database schema:**
+```sql
+-- Parent table
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL
+);
+
+-- Child table (subgrid)
+CREATE TABLE user_contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    contact_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone_number VARCHAR(20),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+```
+
+### Integration with Parent Grids
+
+Subgrids are automatically integrated into their parent grids as modal windows. When viewing a parent grid:
+
+1. Each parent record will have action buttons to manage its subgrid records
+2. Clicking on a subgrid button opens a modal with the child records
+3. Full CRUD operations are available within the modal
+4. Changes are immediately reflected without page refresh
+
+### Best Practices for Subgrids
+
+1. **Naming Convention**: Use descriptive names that clearly indicate the relationship (e.g., `user_contacts`, `order_items`)
+2. **Foreign Key Naming**: Follow the `<parent_table>_id` convention for consistency
+3. **Field Selection**: When specifying custom fields, choose the most relevant ones for the subgrid view
+4. **Database Constraints**: Always use proper foreign key constraints with appropriate CASCADE options
+5. **Indexing**: Add indexes on foreign key columns for better performance
 
 ---
 
@@ -350,23 +473,19 @@ resources/
 
 The following Leiningen commands are available for code generation:
 
-- `lein grid <table>`  
-  Scaffold a full CRUD grid for an existing table.
+- `lein grid <table>` &mdash; Scaffold a full CRUD grid for an existing table.
 
-- `lein dashboard <table>`  
-  Scaffold a dashboard for an existing table.
+- `lein dashboard <table>` &mdash; Scaffold a dashboard for an existing table.
 
-- `lein report <report>`  
-  Scaffold a report for a given name.
+- `lein report <report>` &mdash; Scaffold a report for a given name.
 
-- `lein migrate`  
-  Run all migrations in `resources/migrations/`.
+- `lein subgrid <table> <parent-table> <parent-key>` &mdash; Scaffold a subgrid (child table) linked to a parent table.
 
-- `lein rollback`  
-  Roll back the last migration.
+- `lein migrate` &mdash; Run all migrations in `resources/migrations/`.
 
-- `lein database`  
-  Seed users and other records (see `src/myapp/models/cdb.clj`).
+- `lein rollback` &mdash; Roll back the last migration.
+
+- `lein database` &mdash; Seed users and other records (see `src/myapp/models/cdb.clj`).
 
 ---
 

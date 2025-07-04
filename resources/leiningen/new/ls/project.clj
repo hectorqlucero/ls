@@ -41,7 +41,8 @@
             "database" ["run" "-m" "{{name}}.models.cdb/database"]
             "grid" ["run" "-m" "{{name}}.builder/build-grid"]
             "dashboard" ["run" "-m" "{{name}}.builder/build-dashboard"]
-            "report" ["run" "-m" "{{name}}.builder/build-report"]}
+            "report" ["run" "-m" "{{name}}.builder/build-report"]
+            "subgrid" ["run" "-m" "{{name}}.builder/build-subgrid"]}
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
              :dev {:source-paths ["src" "dev"]

@@ -86,10 +86,38 @@
   (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
                              [(build-defroutes-reporte table)]
                              "(defroutes proutes"))
+
+(defn build-subgrid-defroutes
+  "Genera rutas especificas para subgrids para una tabla"
+  [table parent-table]
+  (let [data (str
+              "  ;; Subgrid routes for " table " (parent: " parent-table ")\n"
+              "  (GET \"/admin/" table "\" params [] (" table "-controller/" table "-grid params))\n"
+              "  (GET \"/admin/" table "/add-form/:parent_id\" [parent_id :as request] (" table "-controller/" table "-add-form request parent_id))\n"
+              "  (GET \"/admin/" table "/edit-form/:id\" [id :as request] (" table "-controller/" table "-edit-form request id))\n"
+              "  (POST \"/admin/" table "/save\" params [] (" table "-controller/" table "-save params))\n"
+              "  (GET \"/admin/" table "/delete/:id\" [id :as request] (" table "-controller/" table "-delete request id))")]
+    data))
+
+(defn process-subgrid
+  "Actualiza proutes.clj para subgrids"
+  [table parent-table]
+  (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
+                             [(build-grid-require table)]
+                             "[compojure.core :refer [defroutes GET POST")
+  (insert-lines-after-search "src/{{name}}/routes/proutes.clj"
+                             [(build-subgrid-defroutes table parent-table)]
+                             "(defroutes proutes"))
+
 (comment
   (process-grid "{{name}}")
   (build-defroutes-reporte "users")
   (build-reporte-require "users")
   (process-report "users")
   (process-dashboard "amigos")
-  (process-grid "amigos"))
+  (process-grid "amigos")
+
+  ;; New subgrid functionality
+  (process-subgrid "user_contacts" "users")
+  (process-subgrid "user_roles" "users")
+  (build-subgrid-defroutes "user_contacts" "users"))
