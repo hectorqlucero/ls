@@ -343,6 +343,120 @@
         :data-bs-dismiss "modal"}
        "Close"]]]]])
 
+(defn subgrid-javascript
+  "JavaScript to handle subgrid interactions"
+  []
+  [:script
+   "
+   // Wait for jQuery to be available before executing
+   function waitForJQuery() {
+     if (typeof $ !== 'undefined') {
+       // jQuery is available, initialize subgrid functionality
+       $(document).ready(function() {
+         // Handle subgrid button clicks
+         $(document).on('click', '[data-subgrid-url]', function(e) {
+           e.preventDefault();
+           var url = $(this).data('subgrid-url');
+           var title = $(this).data('subgrid-title');
+           var modal = $('#subgridModal');
+           
+           // Store the current subgrid URL for refreshing after saves
+           modal.data('current-subgrid-url', url);
+           
+           // Set modal title
+           modal.find('#subgridModalLabel').text(title);
+           
+           // Show loading spinner
+           modal.find('#subgrid-content').html(`
+             <div class='text-center p-4'>
+               <div class='spinner-border text-primary' role='status'></div>
+               <div class='mt-2'>Loading...</div>
+             </div>
+           `);
+            // Load subgrid content
+           $.ajax({
+             url: url,
+             type: 'GET',
+             xhrFields: {
+               withCredentials: true
+             },
+             success: function(data, textStatus, jqXHR) {
+               // Check if response is a redirect to login (authentication issue)
+               if (typeof data === 'string' && (data.includes('home/login') || data.includes('Login') || data.includes('username') && data.includes('password'))) {
+                 modal.find('#subgrid-content').html(`
+                   <div class='alert alert-warning'>
+                     <i class='bi bi-exclamation-triangle'></i>
+                     Session expired. Please refresh the page and log in again.
+                   </div>
+                 `);
+                 return;
+               }
+               
+               modal.find('#subgrid-content').html(data);
+               
+               // Initialize DataTable for subgrid if it has a table
+               var subTable = modal.find('table.dataTable');
+               if (subTable.length > 0 && !$.fn.DataTable.isDataTable(subTable)) {
+                 subTable.DataTable({
+                   responsive: true,
+                   pageLength: 10,
+                   language: {
+                     search: 'Search:',
+                     lengthMenu: 'Show _MENU_ entries',
+                     info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+                     paginate: {
+                       first: 'First',
+                       last: 'Last',
+                       next: 'Next',
+                       previous: 'Previous'
+                     }
+                   }
+                 });
+               }
+             },
+             error: function(jqXHR, textStatus, errorThrown) {
+               console.log('Subgrid load failed:', textStatus, errorThrown, jqXHR.status);
+               if (jqXHR.status === 302 || jqXHR.status === 401) {
+                 modal.find('#subgrid-content').html(`
+                   <div class='alert alert-warning'>
+                     <i class='bi bi-exclamation-triangle'></i>
+                     Authentication required. Please refresh the page and log in again.
+                   </div>
+                 `);
+               } else {
+                 modal.find('#subgrid-content').html(`
+                   <div class='alert alert-danger'>
+                     <i class='bi bi-exclamation-triangle'></i>
+                     Error loading subgrid content. Status: ${jqXHR.status}
+                   </div>
+                 `);
+               }
+             }
+           });
+         });
+         
+         // Handle modal cleanup
+         $('#subgridModal').on('hidden.bs.modal', function() {
+           // Destroy any DataTables in the subgrid to prevent conflicts
+           var subTable = $(this).find('table.dataTable');
+           if (subTable.length > 0 && $.fn.DataTable.isDataTable(subTable)) {
+             subTable.DataTable().destroy();
+           }
+           
+           // Clear the stored URL
+           $(this).removeData('current-subgrid-url');
+         });
+       });
+     } else {
+       // jQuery not available yet, wait a bit and try again
+       setTimeout(waitForJQuery, 100);
+     }
+   }
+   
+   // Start waiting for jQuery
+   waitForJQuery();
+   "])
+
 (defn build-grid-with-subgrids
   "Enhanced version of build-grid that supports subgrids.
    Expects subgrid configs in the :subgrids key of args."
@@ -366,79 +480,11 @@
              (unified-table-head fields {:actions? true :new? (:new args) :href href})
              enhanced-body]]]]
          ;; Subgrid modal
-         (build-subgrid-modal (get-in (first subgrid-configs) [:href]))]))))
+         (build-subgrid-modal (get-in (first subgrid-configs) [:href]))
+         ;; Subgrid JavaScript
+         (subgrid-javascript)]))))
 
-(defn subgrid-javascript
-  "JavaScript to handle subgrid interactions"
-  []
-  [:script
-   "
-   // Handle subgrid button clicks
-   $(document).on('click', '[data-subgrid-url]', function(e) {
-     e.preventDefault();
-     var url = $(this).data('subgrid-url');
-     var title = $(this).data('subgrid-title');
-     var modal = $('#subgridModal');
-     
-     // Store the current subgrid URL for refreshing after saves
-     modal.data('current-subgrid-url', url);
-     
-     // Set modal title
-     modal.find('#subgridModalLabel').text(title);
-     
-     // Show loading spinner
-     modal.find('#subgrid-content').html(`
-       <div class='text-center p-4'>
-         <div class='spinner-border text-primary' role='status'></div>
-         <div class='mt-2'>Loading...</div>
-       </div>
-     `);
-     
-     // Load subgrid content
-     $.get(url, function(data) {
-       modal.find('#subgrid-content').html(data);
-       
-       // Initialize DataTable for subgrid if it has a table
-       var subTable = modal.find('table.dataTable');
-       if (subTable.length > 0 && !$.fn.DataTable.isDataTable(subTable)) {
-         subTable.DataTable({
-           responsive: true,
-           pageLength: 10,
-           language: {
-             search: 'Search:',
-             lengthMenu: 'Show _MENU_ entries',
-             info: 'Showing _START_ to _END_ of _TOTAL_ entries',
-             paginate: {
-               first: 'First',
-               last: 'Last',
-               next: 'Next',
-               previous: 'Previous'
-             }
-           }
-         });
-       }
-     }).fail(function() {
-       modal.find('#subgrid-content').html(`
-         <div class='alert alert-danger'>
-           <i class='bi bi-exclamation-triangle'></i>
-           Error loading subgrid content.
-         </div>
-       `);
-     });
-   });
-   
-   // Handle modal cleanup
-   $('#subgridModal').on('hidden.bs.modal', function() {
-     // Destroy any DataTables in the subgrid to prevent conflicts
-     var subTable = $(this).find('table.dataTable');
-     if (subTable.length > 0 && $.fn.DataTable.isDataTable(subTable)) {
-       subTable.DataTable().destroy();
-     }
-     
-     // Clear the stored URL
-     $(this).removeData('current-subgrid-url');
-   });
-   "])
+
 
 ;; =============================================================================
 ;; Convenience functions for common subgrid scenarios
