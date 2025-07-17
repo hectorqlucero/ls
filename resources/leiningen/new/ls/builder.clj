@@ -223,12 +223,12 @@
   (let [params (:params request)
         parent-id-str (get params :parent_id)
         parent-id (when parent-id-str (Integer/parseInt parent-id-str))
-        title \"_TableTitle_\"
+        title \" _TableTitle_ \"
         rows (get-_table_ parent-id)
         content (_table_-view title rows parent-id)]
-    {:status 200
-     :headers {\"Content-Type\" \"text/html\"}
-     :body (html content)}))
+      {:status 200
+       :headers {\"Content-Type\" \"text/html\"}
+       :body (html content)}))
 
 (defn _table_-add-form
   [_ parent-id]
