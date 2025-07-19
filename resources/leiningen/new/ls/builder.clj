@@ -71,7 +71,7 @@
 ;;               :subgrids [{:title \"Phones\"
 ;;                           :table-name \"phones\"
 ;;                           :foreign-key \"user_id\"
-;;                           :href \"/admin/phones\"
+;;                           :href \"/admin/phonesusers\"
 ;;                           :icon \"bi bi-telephone\"
 ;;                           :label \"Phones\"}]}]
 ;;     (build-grid-with-subgrids title rows table-id fields href args))
@@ -210,15 +210,15 @@
 ;; --- SUBGRID TEMPLATES (new) ---
 
 (def controller-subgrid-template
-  "(ns {{name}}.handlers.admin._table_.controller
+  "(ns {{name}}.handlers.admin._subgrid-ns_.controller
   (:require
-   [{{name}}.handlers.admin._table_.model :refer [get-_table_ get-_table_-id]]
-   [{{name}}.handlers.admin._table_.view :refer [_table_-view]]
+   [{{name}}.handlers.admin._subgrid-ns_.model :refer [get-_table_ get-_table_-id]]
+   [{{name}}.handlers.admin._subgrid-ns_.view :refer [_table_-view build-_table_-form]]
    [{{name}}.models.crud :refer [build-form-delete build-form-save]]
    [hiccup.core :refer [html]]))
 
 ;; Main subgrid endpoint - this is what the subgrid AJAX calls
-(defn _table_-grid
+(defn _subgrid-ns_-grid
   [request]
   (let [params (:params request)
         parent-id-str (get params :parent_id)
@@ -230,19 +230,19 @@
        :headers {\"Content-Type\" \"text/html\"}
        :body (html content)}))
 
-(defn _table_-add-form
+(defn _subgrid-ns_-add-form
   [_ parent-id]
   (let [title \"New _TableTitle_\"
         row {:_parent_key_ parent-id}]
-    (html ({{name}}.handlers.admin._table_.view/build-_table_-form title row))))
+    (html (build-_table_-form title row))))
 
-(defn _table_-edit-form
+(defn _subgrid-ns_-edit-form
   [_ id]
   (let [title \"Edit _TableTitle_\"
         row (get-_table_-id id)]
-    (html ({{name}}.handlers.admin._table_.view/build-_table_-form title row))))
+    (html (build-_table_-form title row))))
 
-(defn _table_-save
+(defn _subgrid-ns_-save
   [{params :params}]
   (let [table \"_table_\"
         result (build-form-save params table)]
@@ -250,7 +250,7 @@
       {:status 200 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":true}\"}
       {:status 500 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":false}\"})))
 
-(defn _table_-delete
+(defn _subgrid-ns_-delete
   [_ id]
   (let [table \"_table_\"
         result (build-form-delete table id)]
@@ -260,7 +260,7 @@
 ")
 
 (def view-subgrid-template
-  "(ns {{name}}.handlers.admin._table_.view
+  "(ns {{name}}.handlers.admin._subgrid-ns_.view
   (:require [{{name}}.models.form :refer [form build-field build-modal-buttons]]
             [{{name}}.models.grid :refer [build-grid build-grid-with-custom-new build-grid]]))
 
@@ -273,7 +273,7 @@
          db-fields [_dbfields_]
          fields (apply array-map (interleave db-fields labels))
          table-id \"_table__table\"
-         href \"/admin/_table_\"
+         href \"/admin/_subgrid-ns_\"
          args {:new true :edit true :delete true}
          new-record-href (if parent-id
                            (str href \"/add-form/\" parent-id)
@@ -292,11 +292,11 @@
 
 (defn build-_table_-form
   [title row]
-  (form \"/admin/_table_/save\" (build-_table_-fields row) (build-modal-buttons) title {:bare true}))
+  (form \"/admin/_subgrid-ns_/save\" (build-_table_-fields row) (build-modal-buttons) title {:bare true}))
 ")
 
 (def model-subgrid-template
-  "(ns {{name}}.handlers.admin._table_.model
+  "(ns {{name}}.handlers.admin._subgrid-ns_.model
   (:require [{{name}}.models.crud :refer [Query db]]))
 
 (def get-_table_-sql
@@ -325,6 +325,7 @@
   (reduce (fn [s [k v]]
             (let [pattern (case k
                             :table "_table_"
+                            :subgrid-ns "_subgrid-ns_"
                             :TableTitle "_TableTitle_"
                             :ParentTitle "_ParentTitle_"
                             :parent_table "_parent_table_"
@@ -398,9 +399,12 @@
     (routes/process-report table)
     (println (str "Report code generated in: src/{{name}}/handlers/reports/" table))))
 
+
 (defn generate-subgrid-files
   [table parent-table parent-key view-fields sql-fields]
-  (let [TableTitle (str/capitalize table)
+  ;; Use composite subgrid name for handler dir and routes
+  (let [subgrid-name (str table parent-table)
+        TableTitle (str/capitalize table)
         ParentTitle (str/capitalize parent-table)
         labels (str/join " " (map (fn [[label _]] (str "\"" label "\"")) view-fields))
         dbfields (str/join " " (map (fn [[_ field]] (str ":" field)) view-fields))
@@ -412,6 +416,7 @@
                       (str "t." (first sql-fields))
                       "t.id")
         m {:table table
+           :subgrid-ns subgrid-name
            :TableTitle TableTitle
            :ParentTitle ParentTitle
            :parent_table parent-table
@@ -422,13 +427,13 @@
            :fields fields-block
            :sql_fields sql-fields-list
            :order_field order-field}
-        base-path (str "src/{{name}}/handlers/admin/" table "/")]
+        base-path (str "src/{{name}}/handlers/admin/" subgrid-name "/")]
     (io/make-parents (str base-path "controller.clj"))
     (spit (str base-path "controller.clj") (render-template controller-subgrid-template m))
     (spit (str base-path "view.clj") (render-template view-subgrid-template m))
     (spit (str base-path "model.clj") (render-template model-subgrid-template m))
-    (routes/process-subgrid table parent-table)
-    (println (str "Subgrid code generated in: src/{{name}}/handlers/admin/" table))))
+    (routes/process-subgrid subgrid-name parent-table)
+    (println (str "Subgrid code generated in: src/{{name}}/handlers/admin/" subgrid-name "/"))))
 
 ;; --- USAGE ---
 
@@ -490,6 +495,7 @@
       (usage)
       (generate-report-files table))))
 
+
 (defn build-subgrid
   [& args]
   (let [[table parent-table parent-key & field-pairs] args]
@@ -497,7 +503,7 @@
       (or (nil? table) (nil? parent-table) (nil? parent-key))
       (do
         (println "Usage: lein run -m builder subgrid <table> <parent-table> <parent-key> <Label1>:<field1> <Label2>:<field2> ...")
-        (println "Example: lein run -m builder subgrid user_contacts users user_id \"Contact Name:contact_name\" Email:email"))
+        (println "Example: lein run -m builder subgrid appointments patients patient_id \"Date:date\" Reason:reason"))
       (empty? field-pairs)
       ;; If no fields given, auto-generate from DB
       (let [all-fields (map name (get-table-columns table))
