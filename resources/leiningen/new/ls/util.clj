@@ -6,6 +6,13 @@
    [clojure.walk :as walk]
    [{{name}}.models.crud :refer [config db Query]]))
 
+(defn shorten
+  "Shortens a string to a maximum length, appending '...' if truncated."
+  [s max-length]
+  (if (and s (> (count s) max-length))
+    (str (subs s 0 max-length) "...")
+    s))
+
 (defn class-merge
   "Merges base-classes (vector) and attr map's :class (string or vector) into a single :class string, removing duplicates."
   [base-classes attr]
