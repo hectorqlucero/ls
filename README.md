@@ -510,16 +510,21 @@ resources/
     [myapp.models.util :refer [get-session-id user-level]]
     [hiccup.core :refer [html]]))
 
+(def allowed-rights ["U" "A" "S"]) ; from :rights (default if omitted)
+
 (defn users
   [request]
   (let [title "Users"
         ok (get-session-id request)
         js nil
         rows (get-users)
-        content (users-view title rows)]
-    (if (= (user-level request) "S")
+        content (users-view title rows)
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
       (application request title ok js content)
-      (application request title ok nil "Not authorized to access this item! (level 'S')"))))
+      (application request title ok nil
+                   (str "Not authorized to access this item! (level(s) "
+                        allowed-rights ")")))))
 
 (defn users-add-form
   [_]
@@ -540,9 +545,12 @@ resources/
   (let [table "users"
         result (build-form-save params table)]
     (if result
-      {:status 200 :headers {"Content-Type" "application/json"} :body "{\"ok\":true}"}
-      {:status 500 :headers {"Content-Type" "application/json"} :body "{\"ok\":false}"}
-    )))
+  {:status 200
+   :headers {"Content-Type" "application/json"}
+   :body "{\"ok\":true}"}
+  {:status 500
+   :headers {"Content-Type" "application/json"}
+   :body "{\"ok\":false}"})))
 ```
 
 ### Example: `models.crud`
