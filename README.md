@@ -371,7 +371,7 @@ Notes:
 
 ### Best Practices for Subgrids
 
-1. **Naming Convention**: Use descriptive names that clearly indicate the relationship (e.g., `user_contacts`, `order_items`)
+1. **Naming Convention**: Use descriptive names that clearly indicate the relationship (e.g., `usercontacts`, `orderitems`)
 2. **Foreign Key Naming**: Follow the `<parent_table>_id` convention for consistency
 3. **Field Selection**: When specifying custom fields, choose the most relevant ones for the subgrid view
 4. **Database Constraints**: Always use proper foreign key constraints with appropriate CASCADE options
