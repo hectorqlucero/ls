@@ -3,9 +3,10 @@
             [clojure.java.io :as io]
             [{{name}}.models.crud :refer [get-table-columns]]
             [{{name}}.models.routes :as routes]))
-
 ;; --- GRID TEMPLATES (existing) ---
 
+
+;; Controller template with rights check
 (def controller-template
   "(ns {{name}}.handlers.admin._table_.controller
   (:require
@@ -16,16 +17,19 @@
    [{{name}}.models.util :refer [get-session-id user-level]]
    [hiccup.core :refer [html]]))
 
+(def allowed-rights _rights_)
+
 (defn _table_
   [request]
   (let [title \"_TableTitle_\"
         ok (get-session-id request)
         js nil
         rows (get-_table_)
-        content (_table_-view title rows)]
-    (if (= (user-level request) \"S\")
+        content (_table_-view title rows)
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
       (application request title ok js content)
-      (application request title ok nil \"Not authorized to access this item! (level 'S')\"))))
+      (application request title ok nil (str \"Not authorized to access this item! (level(s) \" allowed-rights \")\")))))
 
 (defn _table_-add-form
   [_]
@@ -125,7 +129,9 @@
    [{{name}}.handlers._table_.model :refer [get-_table_]]
    [{{name}}.handlers._table_.view :refer [_table_-view]]
    [{{name}}.layout :refer [application]]
-   [{{name}}.models.util :refer [get-session-id]]))
+   [{{name}}.models.util :refer [get-session-id user-level]]))
+
+(def allowed-rights _rights_)
 
 (defn _table_
   [request]
@@ -133,8 +139,11 @@
         ok (get-session-id request)
         js nil
         rows (get-_table_)
-        content (_table_-view title rows)]
-    (application request title ok js content)))
+        content (_table_-view title rows)
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
+      (application request title ok js content)
+      (application request title ok nil (str \"Not authorized to access this item! (level(s) \" allowed-rights \")\")))))
 ")
 
 (def view-dashboard-template
@@ -170,16 +179,21 @@
    [{{name}}.handlers.reports._table_.model :refer [get-_table_]]
    [{{name}}.handlers.reports._table_.view :refer [_table_-view]]
    [{{name}}.layout :refer [application]]
-   [{{name}}.models.util :refer [get-session-id]]))
+   [{{name}}.models.util :refer [get-session-id user-level]]))
+
+(def allowed-rights _rights_)
 
 (defn _table_
-  [params]
+  [request]
   (let [title \"_TableTitle_ Report\"
-        ok (get-session-id params)
+        ok (get-session-id request)
         js nil
         rows (get-_table_)
-        content (_table_-view title rows)]
-    (application params title ok js content)))
+        content (_table_-view title rows)
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
+      (application request title ok js content)
+      (application request title ok nil (str \"Not authorized to access this item! (level(s) \" allowed-rights \")\")))))
 ")
 
 (def view-report-template
@@ -215,7 +229,10 @@
    [{{name}}.handlers.admin._subgrid-ns_.model :refer [get-_table_ get-_table_-id]]
    [{{name}}.handlers.admin._subgrid-ns_.view :refer [_table_-view build-_table_-form]]
    [{{name}}.models.crud :refer [build-form-delete build-form-save]]
+   [{{name}}.models.util :refer [user-level]]
    [hiccup.core :refer [html]]))
+
+(def allowed-rights _rights_)
 
 ;; Main subgrid endpoint - this is what the subgrid AJAX calls
 (defn _subgrid-ns_-grid
@@ -225,38 +242,56 @@
         parent-id (when parent-id-str (Integer/parseInt parent-id-str))
         title \" _TableTitle_ \"
         rows (get-_table_ parent-id)
-        content (_table_-view title rows parent-id)]
+        content (_table_-view title rows parent-id)
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
       {:status 200
        :headers {\"Content-Type\" \"text/html\"}
-       :body (html content)}))
+       :body (html content)}
+      {:status 403
+       :headers {\"Content-Type\" \"text/html\"}
+       :body \"Not authorized to access this item!\"})))
 
 (defn _subgrid-ns_-add-form
-  [_ parent-id]
+  [request parent-id]
   (let [title \"New _TableTitle_\"
-        row {:_parent_key_ parent-id}]
-    (html (build-_table_-form title row))))
+        row {:_parent_key_ parent-id}
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
+      (html (build-_table_-form title row))
+      {:status 403 :headers {\"Content-Type\" \"text/html\"} :body \"Not authorized to access this item!\"})))
 
 (defn _subgrid-ns_-edit-form
-  [_ id]
+  [request id]
   (let [title \"Edit _TableTitle_\"
-        row (get-_table_-id id)]
-    (html (build-_table_-form title row))))
+        row (get-_table_-id id)
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
+      (html (build-_table_-form title row))
+      {:status 403 :headers {\"Content-Type\" \"text/html\"} :body \"Not authorized to access this item!\"})))
 
 (defn _subgrid-ns_-save
-  [{params :params}]
-  (let [table \"_table_\"
-        result (build-form-save params table)]
-    (if result
-      {:status 200 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":true}\"}
-      {:status 500 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":false}\"})))
+  [request]
+  (let [params (:params request)
+        table \"_table_\"
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
+      (let [result (build-form-save params table)]
+        (if result
+          {:status 200 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":true}\"}
+          {:status 500 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":false}\"}))
+      {:status 403 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":false,\\\"error\\\":\\\"Not authorized\\\"}\"})))
 
 (defn _subgrid-ns_-delete
-  [_ id]
+  [request id]
   (let [table \"_table_\"
-        result (build-form-delete table id)]
-    (if result
-      {:status 200 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":true}\"}
-      {:status 500 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":false}\"})))
+        user-r (user-level request)]
+    (if (some #(= user-r %) allowed-rights)
+      (let [result (build-form-delete table id)]
+        (if result
+          {:status 200 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":true}\"}
+          {:status 500 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":false}\"}))
+      {:status 403 :headers {\"Content-Type\" \"application/json\"} :body \"{\\\"ok\\\":false,\\\"error\\\":\\\"Not authorized\\\"}\"})))
 ")
 
 (def view-subgrid-template
@@ -321,6 +356,7 @@
 
 ;; --- TEMPLATE RENDERING ---
 
+;; Add _rights_ to template rendering
 (defn render-template [template m]
   (reduce (fn [s [k v]]
             (let [pattern (case k
@@ -336,15 +372,21 @@
                             :fields "_fields_"
                             :sql_fields "_sql_fields_"
                             :order_field "_order_field_"
-                            (str "\\{\\{" (name k) "\\}\\}"))]
-              (str/replace s (re-pattern pattern) v)))
+                            :rights "_rights_"
+                            nil)]
+              (if pattern
+                (str/replace s pattern v)
+                s)))
           template
           m))
 
 (defn field-block [fields]
   (apply str
          (for [[label field] fields]
-           (str "(build-field {:label \"" label "\" :type \"text\" :id \"" field "\" :name \"" field "\" :placeholder \"" label " here...\" :required false :value (get row :" field ")})\n    "))))
+           (str "(build-field {:label \"" label "\""
+                " :type \"text\" :id \"" field "\""
+                " :name \"" field "\""
+                " :placeholder \"" label " here...\" :required false :value (get row :" field ")})\n"))))
 
 (defn auto-label [field]
   (-> field
@@ -353,16 +395,35 @@
 
 ;; --- FILE GENERATION ---
 
-(defn generate-files [table fields]
+;; Normalize rights tokens from CLI (e.g., :rights [U A S] or :rights ["U" "A" "S"]) to
+;; a proper Clojure vector literal string like ["U" "A" "S"].
+(defn normalize-rights
+  [tokens]
+  (let [joined (str/join " " tokens)
+        inside (-> joined
+                   (str/replace #"^\s*\[\s*" "")
+                   (str/replace #"\s*\]\s*$" ""))
+        parts (->> (str/split inside #"[\s,]+")
+                   (remove str/blank?)
+                   (map #(str/replace % #"^\"|\"$" "")))]
+    (if (seq parts)
+      (str "[" (str/join " " (map #(str "\"" % "\"") parts)) "]")
+      "[\"U\" \"A\" \"S\"]")))
+
+
+;; Accept rights argument, default to ["U" "A" "S"]
+(defn generate-files [table fields & [rights]]
   (let [TableTitle (str/capitalize table)
         labels (str/join " " (map (fn [[label _]] (str "\"" label "\"")) fields))
         dbfields (str/join " " (map (fn [[_ field]] (str ":" field)) fields))
         fields-block (field-block fields)
+        rights-str (or rights "[\"U\" \"A\" \"S\"]")
         m {:table table
            :TableTitle TableTitle
            :labels labels
            :dbfields dbfields
-           :fields fields-block}
+           :fields fields-block
+           :rights rights-str}
         base-path (str "src/{{name}}/handlers/admin/" table "/")]
     (io/make-parents (str base-path "controller.clj"))
     (spit (str base-path "controller.clj") (render-template controller-template m))
@@ -371,14 +432,18 @@
     (routes/process-grid table)
     (println (str "Code generated in: src/{{name}}/handlers/admin/" table))))
 
-(defn generate-dashboard-files [table fields]
+
+;; Accept rights argument for dashboard
+(defn generate-dashboard-files [table fields & [rights]]
   (let [TableTitle (str/capitalize table)
         labels (str/join " " (map (fn [[label _]] (str "\"" label "\"")) fields))
         dbfields (str/join " " (map (fn [[_ field]] (str ":" field)) fields))
+        rights-str (or rights "[\"U\" \"A\" \"S\"]")
         m {:table table
            :TableTitle TableTitle
            :labels labels
-           :dbfields dbfields}
+           :dbfields dbfields
+           :rights rights-str}
         base-path (str "src/{{name}}/handlers/" table "/")]
     (io/make-parents (str base-path "controller.clj"))
     (spit (str base-path "controller.clj") (render-template controller-dashboard-template m))
@@ -387,10 +452,14 @@
     (routes/process-dashboard table)
     (println (str "Dashboard code generated in: src/{{name}}/handlers/" table))))
 
-(defn generate-report-files [table]
+
+;; Accept rights argument for report
+(defn generate-report-files [table & [rights]]
   (let [TableTitle (str/capitalize table)
+        rights-str (or rights "[\"U\" \"A\" \"S\"]")
         m {:table table
-           :TableTitle TableTitle}
+           :TableTitle TableTitle
+           :rights rights-str}
         base-path (str "src/{{name}}/handlers/reports/" table "/")]
     (io/make-parents (str base-path "controller.clj"))
     (spit (str base-path "controller.clj") (render-template controller-report-template m))
@@ -400,21 +469,22 @@
     (println (str "Report code generated in: src/{{name}}/handlers/reports/" table))))
 
 
+
+;; Accept rights argument for subgrid
 (defn generate-subgrid-files
-  [table parent-table parent-key view-fields sql-fields]
+  [table parent-table parent-key view-fields sql-fields & [rights]]
   ;; Use composite subgrid name for handler dir and routes
   (let [subgrid-name (str table parent-table)
         TableTitle (str/capitalize table)
         ParentTitle (str/capitalize parent-table)
         labels (str/join " " (map (fn [[label _]] (str "\"" label "\"")) view-fields))
         dbfields (str/join " " (map (fn [[_ field]] (str ":" field)) view-fields))
-        fields-block (apply str
-                            (for [[label field] view-fields]
-                              (str "(build-field {:label \"" label "\" :type \"text\" :id \"" field "\" :name \"" field "\" :placeholder \"" label " here...\" :required false :value (get row :" field ")})\n    ")))
+        fields-block (field-block view-fields)
         sql-fields-list (str/join ", " (concat ["id" parent-key] sql-fields))
         order-field (if (seq sql-fields)
                       (str "t." (first sql-fields))
                       "t.id")
+        rights-str (or rights "[\"U\" \"A\" \"S\"]")
         m {:table table
            :subgrid-ns subgrid-name
            :TableTitle TableTitle
@@ -426,7 +496,8 @@
            :dbfields dbfields
            :fields fields-block
            :sql_fields sql-fields-list
-           :order_field order-field}
+           :order_field order-field
+           :rights rights-str}
         base-path (str "src/{{name}}/handlers/admin/" subgrid-name "/")]
     (io/make-parents (str base-path "controller.clj"))
     (spit (str base-path "controller.clj") (render-template controller-subgrid-template m))
@@ -456,49 +527,86 @@
 
 ;; --- MAIN ENTRYPOINTS ---
 
+
+;; Accept :rights [..] as last argument
 (defn build-grid
   [& args]
-  (let [[table & field-pairs] args]
+  (let [argsv (vec args)
+        [table & rest-args-seq] argsv
+        rest-args (vec rest-args-seq)
+        rights-idx (.indexOf rest-args ":rights")
+        [field-pairs rights] (if (>= rights-idx 0)
+                               (let [after (subvec rest-args (inc rights-idx))]
+                                 [(subvec rest-args 0 rights-idx)
+                                  (normalize-rights after)])
+                               [rest-args nil])]
     (cond
       (nil? table) (usage)
       (empty? field-pairs)
       ;; If no fields given, auto-generate from DB
       (let [fields (for [field (map name (get-table-columns table))]
                      [(auto-label field) field])]
-        (generate-files table (rest fields)))
+        (generate-files table (rest fields) rights))
       :else
       (let [fields (map #(let [[label field] (str/split % #":")]
                            [label field])
                         field-pairs)]
-        (generate-files table fields)))))
+        (generate-files table fields rights)))))
 
+
+;; Accept :rights [..] as last argument
 (defn build-dashboard
   [& args]
-  (let [[table & field-pairs] args]
+  (let [argsv (vec args)
+        [table & rest-args-seq] argsv
+        rest-args (vec rest-args-seq)
+        rights-idx (.indexOf rest-args ":rights")
+        [field-pairs rights] (if (>= rights-idx 0)
+                               (let [after (subvec rest-args (inc rights-idx))]
+                                 [(subvec rest-args 0 rights-idx)
+                                  (normalize-rights after)])
+                               [rest-args nil])]
     (cond
       (nil? table) (usage)
       (empty? field-pairs)
       ;; If no fields given, auto-generate from DB
       (let [fields (for [field (map name (get-table-columns table))]
                      [(auto-label field) field])]
-        (generate-dashboard-files table (rest fields)))
+        (generate-dashboard-files table (rest fields) rights))
       :else
       (let [fields (map #(let [[label field] (str/split % #":")]
                            [label field])
                         field-pairs)]
-        (generate-dashboard-files table fields)))))
+        (generate-dashboard-files table fields rights)))))
 
+
+;; Accept :rights [..] as last argument
 (defn build-report
   [& args]
-  (let [[table] args]
+  (let [argsv (vec args)
+        [table & rest-args-seq] argsv
+        rest-args (vec rest-args-seq)
+        rights-idx (.indexOf rest-args ":rights")
+        rights (when (>= rights-idx 0)
+                 (normalize-rights (subvec rest-args (inc rights-idx))))]
     (if (nil? table)
       (usage)
-      (generate-report-files table))))
+      (generate-report-files table rights))))
 
 
+
+;; Accept :rights [..] as last argument
 (defn build-subgrid
   [& args]
-  (let [[table parent-table parent-key & field-pairs] args]
+  (let [argsv (vec args)
+        [table parent-table parent-key & rest-args-seq] argsv
+        rest-args (vec rest-args-seq)
+        rights-idx (.indexOf rest-args ":rights")
+        [field-pairs rights] (if (>= rights-idx 0)
+                               (let [after (subvec rest-args (inc rights-idx))]
+                                 [(subvec rest-args 0 rights-idx)
+                                  (normalize-rights after)])
+                               [rest-args nil])]
     (cond
       (or (nil? table) (nil? parent-table) (nil? parent-key))
       (do
@@ -510,10 +618,11 @@
             filtered-fields (remove #(or (= % "id") (= % parent-key)) all-fields)
             view-fields (map #(vector (auto-label %) %) filtered-fields)
             sql-fields filtered-fields]
-        (generate-subgrid-files table parent-table parent-key view-fields sql-fields))
+        (generate-subgrid-files table parent-table parent-key view-fields sql-fields rights))
       :else
       (let [view-fields (map #(let [[label field] (str/split % #":")]
                                 [label field])
                              field-pairs)
             sql-fields (map second view-fields)]
-        (generate-subgrid-files table parent-table parent-key view-fields sql-fields)))))
+        (generate-subgrid-files table parent-table parent-key view-fields sql-fields rights)))))
+

@@ -120,13 +120,13 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🛠️ Leiningen Aliases
 
-- `lein migrate` &mdash; Run all migrations in [`resources/migrations`](resources/migrations/)
-- `lein rollback` &mdash; Roll back the last migration
-- `lein database` &mdash; Seed users and other records (see [`src/myapp/models/cdb.clj`](src/myapp/models/cdb.clj))
-- `lein grid <table>` &mdash; Scaffold a full CRUD grid for an existing table
-- `lein dashboard <table>` &mdash; Scaffold a dashboard for an existing table
-- `lein report <report>` &mdash; Scaffold a report for a given name
-- `lein subgrid <table> <parent-table> <parent-key>` &mdash; Scaffold a subgrid (child table) linked to a parent table
+- `lein migrate` — Run all migrations in [`resources/migrations`](resources/migrations/)
+- `lein rollback` — Roll back the last migration
+- `lein database` — Seed users and other records (see [`src/myapp/models/cdb.clj`](src/myapp/models/cdb.clj))
+- `lein grid <table> [:rights [U A S]]` — Scaffold a full CRUD grid (optionally restrict access with `:rights`)
+- `lein dashboard <table> [:rights [U A S]]` — Scaffold a dashboard (optionally restrict access with `:rights`)
+- `lein report <report> [:rights [U A S]]` — Scaffold a report (optionally restrict access with `:rights`)
+- `lein subgrid <table> <parent-table> <parent-key> [:rights [U A S]]` — Scaffold a subgrid linked to a parent table (optionally restrict access with `:rights`)
 
 ---
 
@@ -166,6 +166,7 @@ Each grid, subgrid, dashboard, and report contains:
 - Use the provided code generators to keep your codebase consistent and DRY.
 - Take advantage of Hiccup for safe, composable HTML rendering.
 - **Subgrids**: Use subgrids to create master-detail relationships between tables. For example, a `users` table with a `user_contacts` subgrid.
+- **Troubleshooting tip**: If a generated grid, dashboard, report, or subgrid does not load or routes don’t seem to update, make a no-op edit to `src/myapp/core.clj` (add a space and save). This “touch” triggers recompilation/reload and usually resolves it.
 
 ---
 
@@ -186,9 +187,41 @@ lein subgrid user_contacts users user_id "Contact Name:contact_name" "Email:emai
 
 # Auto-generate subgrid fields from database schema
 lein subgrid user_contacts users user_id
+
+# Restrict access with :rights (any generator)
+lein grid users :rights [A S]
+lein dashboard sales :rights ["A" "S"]
+lein report monthlySummary :rights [U]
+lein subgrid user_contacts users user_id :rights [A S]
 ```
 
 ---
+
+## 🔐 Access control with :rights
+
+All generators now accept an optional `:rights` parameter to control who can access the generated pages. The value is a vector of user levels, and it’s checked in the generated controller via an `allowed-rights` var.
+
+- Default (if omitted): ["U" "A" "S"]
+- Accepts bare tokens or quoted strings: `:rights [U A S]` or `:rights ["U" "A" "S"]`
+- Typical levels: "U" (User), "A" (Admin), "S" (Super)
+
+Examples:
+
+```sh
+lein grid contactos :rights ["U" "A" "S"]
+lein grid customers :rights [A S]
+lein dashboard kpis :rights [S]
+lein report quarterlySales :rights [A]
+lein subgrid order_items orders order_id :rights [A S]
+```
+
+In the generated controller, you’ll see:
+
+```clojure
+(def allowed-rights ["A" "S"]) ; from your :rights vector
+;; requests are allowed only when (user-level request) is one of these
+```
+
 
 ## 🔗 Working with Subgrids
 
@@ -473,13 +506,13 @@ resources/
 
 The following Leiningen commands are available for code generation:
 
-- `lein grid <table>` &mdash; Scaffold a full CRUD grid for an existing table.
+- `lein grid <table> [:rights [U A S]]` — Scaffold a full CRUD grid for an existing table (optional `:rights`).
 
-- `lein dashboard <table>` &mdash; Scaffold a dashboard for an existing table.
+- `lein dashboard <table> [:rights [U A S]]` — Scaffold a dashboard (optional `:rights`).
 
-- `lein report <report>` &mdash; Scaffold a report for a given name.
+- `lein report <report> [:rights [U A S]]` — Scaffold a report (optional `:rights`).
 
-- `lein subgrid <table> <parent-table> <parent-key>` &mdash; Scaffold a subgrid (child table) linked to a parent table.
+- `lein subgrid <table> <parent-table> <parent-key> [:rights [U A S]]` — Scaffold a subgrid linked to a parent table (optional `:rights`).
 
 - `lein migrate` &mdash; Run all migrations in `resources/migrations/`.
 
