@@ -166,7 +166,7 @@ Each grid, subgrid, dashboard, and report contains:
 - Use the provided code generators to keep your codebase consistent and DRY.
 - Take advantage of Hiccup for safe, composable HTML rendering.
 - **Subgrids**: Use subgrids to create master-detail relationships between tables. For example, a `users` table with a `user_contacts` subgrid.
-- **Troubleshooting tip**: If a generated grid, dashboard, report, or subgrid does not load or routes don’t seem to update, make a no-op edit to `src/myapp/core.clj` (add a space and save). This “touch” triggers recompilation/reload and usually resolves it.
+- **Troubleshooting tip**: If a generated grid, dashboard, report, or subgrid does not load or routes don’t seem to update, make a no-op edit to `src/myapp/core.clj` (just save without changing anything, then reload the page on your browser.). This “touch” triggers recompilation/reload and usually resolves it.
 
 ---
 
