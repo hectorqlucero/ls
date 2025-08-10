@@ -178,7 +178,7 @@ Each grid, subgrid, dashboard, and report contains:
 - **Subgrids**: Use subgrids to create master‑detail relationships. Example: a `users` table with a
   `usercontacts` subgrid.
 - **Troubleshooting tip**: If something doesn’t load or routes don’t update, “touch”
-  `src/myapp/core.clj` (add a space and save), then reload the page. This forces a reload.
+  `src/myapp/core.clj` (just save this file), then reload the page. This forces a reload.
 - **Naming tip (avoid underscores)**: For handler/view/model folders and route names, avoid
   underscores to prevent Clojure namespace conflicts (prefer `usercontacts` over `user_contacts`).
   SQL table/column names can still use underscores.
