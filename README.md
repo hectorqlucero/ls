@@ -166,7 +166,7 @@ Each grid, subgrid, dashboard, and report contains:
 - Use the provided code generators to keep your codebase consistent and DRY.
 - Take advantage of Hiccup for safe, composable HTML rendering.
 - **Subgrids**: Use subgrids to create master-detail relationships between tables. For example, a `users` table with a `usercontacts` subgrid.
-- **Troubleshooting tip**: If a generated grid, dashboard, report, or subgrid does not load or routes don’t seem to update, make a no-op edit to `src/myapp/core.clj` (just save without changing anything, then reload the page on your browser.). This “touch” triggers recompilation/reload and usually resolves it.
+- **Troubleshooting tip**: If a generated grid, dashboard, report, or subgrid doesn’t load or routes don’t update, “touch” `src/myapp/core.clj` (e.g., just save don't change anything), then reload the page. This forces a recompilation/reload.
 - **Naming tip (avoid underscores)**: For handler/view/model folders and route/endpoint names, avoid underscores to prevent Clojure namespace conflicts (e.g., prefer `usercontacts` over `user_contacts`). Database table/column names in SQL can still use underscores.
 
 ---
@@ -200,13 +200,13 @@ lein subgrid usercontacts users user_id :rights [A S]
 
 ## 🔐 Access control with :rights
 
-All generators now accept an optional `:rights` parameter to control who can access the generated pages. The value is a vector of user levels, and it’s checked in the generated controller via an `allowed-rights` var.
+All generators accept an optional `:rights` parameter to control who can access the generated pages. The vector is checked in the generated controller via `allowed-rights`.
 
 - Default (if omitted): ["U" "A" "S"]
 - Accepts bare tokens or quoted strings: `:rights [U A S]` or `:rights ["U" "A" "S"]`
 - Typical levels: "U" (User), "A" (Admin), "S" (Super)
 
-Examples:
+Examples
 
 ```sh
 lein grid contactos :rights ["U" "A" "S"]
@@ -248,20 +248,20 @@ lein subgrid <child-table> <parent-table> <foreign-key> [field-specifications...
 
 **Examples:**
 
-1. **Auto-generate fields from database schema:**
+1. Auto-generate fields from database schema
    ```sh
-  lein subgrid usercontacts users user_id
+lein subgrid usercontacts users user_id
    ```
-  This will automatically detect all columns in `usercontacts` table (except `id` and `user_id`) and create appropriate labels.
+Automatically detects all columns in `usercontacts` (except `id` and `user_id`) and creates labels.
 
-2. **Specify custom fields:**
+2. Specify custom fields
    ```sh
-  lein subgrid usercontacts users user_id "Contact Name:contact_name" "Email:email" "Phone:phone_number"
+lein subgrid usercontacts users user_id "Contact Name:contact_name" "Email:email" "Phone:phone_number"
    ```
 
-3. **Complex example with user roles:**
+3. Complex example with user roles
    ```sh
-  lein subgrid userroles users user_id "Role Name:role_name" "Permissions:permissions" "Active:is_active"
+lein subgrid userroles users user_id "Role Name:role_name" "Permissions:permissions" "Active:is_active"
    ```
 
 ### What Gets Generated
