@@ -6,7 +6,11 @@ A Professional Leiningen Template for Lucero Systems Web Applications
 
 ## Overview
 
-**ls** is a modern [Leiningen](https://leiningen.org/) project template for rapidly building robust, scalable, and maintainable Clojure web applications. Designed for productivity and best practices, it empowers developers to scaffold CRUD grids, dashboards, and reports in seconds, following Lucero Systems conventions. With a clear handler/view/model structure, Hiccup-based HTML, and seamless database integration, **ls** is the fastest way to launch your next Clojure web project.
+**ls** is a modern [Leiningen](https://leiningen.org/) project template for rapidly building robust,
+scalable, and maintainable Clojure web applications. It lets you scaffold CRUD grids, dashboards,
+reports, and subgrids in seconds, following Lucero Systems conventions. With a clear
+handler/view/model structure, Hiccup-based HTML, and seamless DB integration, **ls** helps you
+launch your next Clojure web project fast.
 
 ---
 
@@ -65,8 +69,10 @@ cd myapp
 
 ### 2. Configure the Project
 
-- Edit [`project.clj`](project.clj) and replace all `Change me` and `xxxxx` placeholders with your actual project configuration.
-- Edit [`resources/private/config.clj`](resources/private/config.clj) and update the database connection settings and any other relevant configuration values.
+- Edit [`project.clj`](project.clj) and replace all `Change me` and `xxxxx` placeholders with your
+  actual project configuration.
+- Edit [`resources/private/config.clj`](resources/private/config.clj) and update DB connection
+  settings and other relevant values.
 
 **Example database config in `resources/private/config.clj`:**
 
@@ -89,7 +95,8 @@ CREATE DATABASE mydb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ### 4. Start the REPL in VS Code
 
 - Open the project folder in [VS Code](https://code.visualstudio.com/).
-- Use the [Calva](https://marketplace.visualstudio.com/items?itemName=betterthantomorrow.calva) extension to jack-in and connect to your REPL.
+- Use the [Calva](https://marketplace.visualstudio.com/items?itemName=betterthantomorrow.calva)
+  extension to jack in and connect to your REPL.
 
 ### 5. Run the Development Server
 
@@ -123,10 +130,11 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 - `lein migrate` — Run all migrations in [`resources/migrations`](resources/migrations/)
 - `lein rollback` — Roll back the last migration
 - `lein database` — Seed users and other records (see [`src/myapp/models/cdb.clj`](src/myapp/models/cdb.clj))
-- `lein grid <table> [:rights [U A S]]` — Scaffold a full CRUD grid (optionally restrict access with `:rights`)
-- `lein dashboard <table> [:rights [U A S]]` — Scaffold a dashboard (optionally restrict access with `:rights`)
+- `lein grid <table> [:rights [U A S]]` — Scaffold a full CRUD grid (optional `:rights`)
+- `lein dashboard <table> [:rights [U A S]]` — Scaffold a dashboard (optional `:rights`)
 - `lein report <report> [:rights [U A S]]` — Scaffold a report (optionally restrict access with `:rights`)
-- `lein subgrid <table> <parent-table> <parent-key> [:rights [U A S]]` — Scaffold a subgrid linked to a parent table (optionally restrict access with `:rights`)
+- `lein subgrid <table> <parent-table> <parent-key> [:rights [U A S]]` — Scaffold a subgrid linked
+  to a parent table (optional `:rights`)
 
 ---
 
@@ -134,13 +142,13 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 | Feature         | Location                                              | Description                    |
 |-----------------|------------------------------------------------------|--------------------------------|
-| Grids           | [`src/myapp/handlers/admin/`](src/myapp/handlers/admin/)         | CRUD grids                     |
-| Subgrids        | [`src/myapp/handlers/admin/`](src/myapp/handlers/admin/)         | Child tables linked to parent grids |
-| Dashboards      | [`src/myapp/handlers/`](src/myapp/handlers/)                      | Dashboards                     |
-| Reports         | [`src/myapp/handlers/reports/`](src/myapp/handlers/reports/)      | Reports                        |
-| Private routes  | [`src/myapp/routes/proutes.clj`](src/myapp/routes/proutes.clj)    | Authenticated routes           |
-| Public routes   | [`src/myapp/routes/routes.clj`](src/myapp/routes/routes.clj)      | Publicly accessible routes     |
-| Menu (Navbar)   | [`src/myapp/menu.clj`](src/myapp/menu.clj)                        | Bootstrap 5 navigation bar     |
+| Grids           | [`src/myapp/handlers/admin/`](src/myapp/handlers/admin/)         | CRUD grids |
+| Subgrids        | [`src/myapp/handlers/admin/`](src/myapp/handlers/admin/)         | Child tables linked to parent |
+| Dashboards      | [`src/myapp/handlers/`](src/myapp/handlers/)                      | Dashboards |
+| Reports         | [`src/myapp/handlers/reports/`](src/myapp/handlers/reports/)      | Reports |
+| Private routes  | [`src/myapp/routes/proutes.clj`](src/myapp/routes/proutes.clj)    | Authenticated routes |
+| Public routes   | [`src/myapp/routes/routes.clj`](src/myapp/routes/routes.clj)      | Publicly accessible routes |
+| Menu (Navbar)   | [`src/myapp/menu.clj`](src/myapp/menu.clj)                        | Bootstrap 5 navbar |
 
 Each grid, subgrid, dashboard, and report contains:
 - `controller.clj`
@@ -154,7 +162,9 @@ Each grid, subgrid, dashboard, and report contains:
 - **Java SDK**
 - **MySQL** (configured with a password)
 - [Leiningen](https://leiningen.org)
-- [VS Code](https://code.visualstudio.com/) with [Calva: Clojure & ClojureScript](https://marketplace.visualstudio.com/items?itemName=betterthantomorrow.calva) extension
+- [VS Code](https://code.visualstudio.com/) with
+  [Calva: Clojure & ClojureScript](https://marketplace.visualstudio.com/items?itemName=betterthantomorrow.calva)
+  extension
 
 ---
 
@@ -165,9 +175,13 @@ Each grid, subgrid, dashboard, and report contains:
 - Migrations are stored in [`resources/migrations/`](resources/migrations/).
 - Use the provided code generators to keep your codebase consistent and DRY.
 - Take advantage of Hiccup for safe, composable HTML rendering.
-- **Subgrids**: Use subgrids to create master-detail relationships between tables. For example, a `users` table with a `usercontacts` subgrid.
-- **Troubleshooting tip**: If a generated grid, dashboard, report, or subgrid doesn’t load or routes don’t update, “touch” `src/myapp/core.clj` (e.g., just save don't change anything), then reload the page. This forces a recompilation/reload.
-- **Naming tip (avoid underscores)**: For handler/view/model folders and route/endpoint names, avoid underscores to prevent Clojure namespace conflicts (e.g., prefer `usercontacts` over `user_contacts`). Database table/column names in SQL can still use underscores.
+- **Subgrids**: Use subgrids to create master‑detail relationships. Example: a `users` table with a
+  `usercontacts` subgrid.
+- **Troubleshooting tip**: If something doesn’t load or routes don’t update, “touch”
+  `src/myapp/core.clj` (add a space and save), then reload the page. This forces a reload.
+- **Naming tip (avoid underscores)**: For handler/view/model folders and route names, avoid
+  underscores to prevent Clojure namespace conflicts (prefer `usercontacts` over `user_contacts`).
+  SQL table/column names can still use underscores.
 
 ---
 
@@ -200,7 +214,8 @@ lein subgrid usercontacts users user_id :rights [A S]
 
 ## 🔐 Access control with :rights
 
-All generators accept an optional `:rights` parameter to control who can access the generated pages. The vector is checked in the generated controller via `allowed-rights`.
+All generators accept an optional `:rights` parameter to control who can access generated pages.
+The vector is checked in the generated controller via `allowed-rights`.
 
 - Default (if omitted): ["U" "A" "S"]
 - Accepts bare tokens or quoted strings: `:rights [U A S]` or `:rights ["U" "A" "S"]`
@@ -226,7 +241,8 @@ In the generated controller, you’ll see:
 
 ## 🔗 Working with Subgrids
 
-Subgrids allow you to create master-detail relationships between tables, where one table (child/subgrid) is linked to another table (parent) via a foreign key. This is useful for scenarios like:
+Subgrids create master‑detail relationships, linking a child table to a parent via a foreign key.
+Use cases include:
 
 - Users and their contact information
 - Orders and order items
@@ -292,7 +308,7 @@ For subgrids to work properly, ensure your database tables have:
 
 1. **Primary keys**: Both parent and child tables should have primary key columns (typically `id`)
 2. **Foreign key**: Child table must have a foreign key column referencing the parent table
-3. **Proper naming**: Foreign key should follow the convention `<parent_table>_id` (e.g., `user_id` for users table)
+3. **Proper naming**: Follow `<parent_table>_id` for FKs (e.g., `user_id` for users)
 
 **Example database schema:**
 ```sql
@@ -325,13 +341,15 @@ Subgrids are automatically integrated into their parent grids as modal windows. 
 
 ### Defining subgrids in a grid view (parent-side wiring)
 
-To plug subgrids into a parent grid, pass a `:subgrids` vector in the `args` map to the grid view. When `:subgrids` is present, the view uses `build-grid-with-subgrids` under the hood.
+To plug subgrids into a parent grid, pass a `:subgrids` vector in the `args` map to the grid view.
+When present, the view uses `build-grid-with-subgrids` under the hood.
 
 Keys per subgrid entry:
 - `:title` — Display title for the subgrid
 - `:table-name` — Child table name
 - `:foreign-key` — FK column in child table pointing to the parent (e.g., `user_id`)
-- `:href` — Subgrid endpoint, generated by the subgrid builder. Format: `/admin/<child><parent>` (concatenate child+parent), e.g. `/admin/usercontactsusers`
+- `:href` — Subgrid endpoint from the generator. Format: `/admin/<child><parent>` (concatenate
+  child+parent), e.g. `/admin/usercontactsusers`
 - `:icon` — Optional Bootstrap icon class
 - `:label` — Button/trigger label
 
@@ -366,7 +384,8 @@ Example (users grid with Contacts and Roles subgrids):
 ```
 
 Notes:
-- The subgrid `:href` is created by the `lein subgrid` generator. It follows the composite pattern `/admin/<child><parent>`; for example, `usercontacts` under `users` becomes `/admin/usercontactsusers`.
+- The subgrid `:href` follows `/admin/<child><parent>`; e.g., `usercontacts` under `users` becomes
+  `/admin/usercontactsusers`.
 - If you don’t pass `:subgrids`, the default rendering uses `build-grid` without subgrid actions.
 
 ### Best Practices for Subgrids
@@ -390,7 +409,8 @@ Notes:
 
 ## 📖 API Documentation: ls Leiningen Template
 
-This document provides an overview of the main namespaces, functions, and code generation APIs available in the **ls** Leiningen template for Lucero Systems web applications.
+This document overviews the main namespaces, functions, and code generation APIs in the **ls**
+Leiningen template.
 
 ---
 
@@ -409,7 +429,9 @@ This document provides an overview of the main namespaces, functions, and code g
 
 ## Overview
 
-The **ls** template generates a Clojure web application with a modular handler/view/model structure, automatic CRUD, dashboard, and report scaffolding, and seamless database integration. The generated code is idiomatic, extensible, and ready for production.
+The **ls** template generates a Clojure web app with a modular handler/view/model structure,
+automatic CRUD, dashboard, and report scaffolding, and seamless DB integration. The generated code
+is idiomatic, extensible, and ready for production.
 
 ---
 
@@ -553,13 +575,14 @@ resources/
 
 The following Leiningen commands are available for code generation:
 
-- `lein grid <table> [:rights [U A S]]` — Scaffold a full CRUD grid for an existing table (optional `:rights`).
+- `lein grid <table> [:rights [U A S]]` — Scaffold a CRUD grid (optional `:rights`).
 
 - `lein dashboard <table> [:rights [U A S]]` — Scaffold a dashboard (optional `:rights`).
 
 - `lein report <report> [:rights [U A S]]` — Scaffold a report (optional `:rights`).
 
-- `lein subgrid <table> <parent-table> <parent-key> [:rights [U A S]]` — Scaffold a subgrid linked to a parent table (optional `:rights`).
+- `lein subgrid <table> <parent-table> <parent-key> [:rights [U A S]]` — Scaffold a subgrid linked
+  to a parent table (optional `:rights`).
 
 - `lein migrate` &mdash; Run all migrations in `resources/migrations/`.
 
@@ -599,12 +622,14 @@ The following Leiningen commands are available for code generation:
 
 - Inline comments are provided in each generated source file.
 - For advanced usage, see the [Leiningen documentation](https://leiningen.org/).
-- For questions or contributions, open an issue or pull request on the [GitHub repository](https://github.com/your-org/ls).
+- For questions or contributions, open an issue or pull request on the
+  [GitHub repository](https://github.com/your-org/ls).
 
 ---
 
 &copy; Lucero Systems. All rights reserved.
 
 <!--
-SEO keywords: Clojure API documentation, Leiningen template API, CRUD generator API, Clojure web app API, Lucero Systems, handler/view/model, Clojure code generation, Clojure project structure, open source, enterprise Clojure, Clojure dashboard API, Clojure report API, Clojure CRUD API
+SEO keywords: Clojure API docs, Leiningen template, CRUD generator, Clojure web app, Lucero Systems,
+handler/view/model, code generation, project structure, enterprise Clojure, dashboard/report/CRUD APIs
 -->
